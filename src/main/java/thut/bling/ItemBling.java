@@ -21,6 +21,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
 import thut.wearables.IWearable;
 
@@ -78,7 +79,7 @@ public class ItemBling extends Item implements IWearable
         }
         if (stack.hasTagCompound() && stack.getTagCompound().hasKey("gemTag"))
         {
-            ItemStack gem = ItemStack.loadItemStackFromNBT(stack.getTagCompound().getCompoundTag("gemTag"));
+            ItemStack gem = CompatWrapper.fromTag(stack.getTagCompound().getCompoundTag("gemTag"));
             if (gem != null)
             {
                 try

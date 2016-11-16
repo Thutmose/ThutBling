@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 import thut.bling.ItemBling;
+import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
 import thut.wearables.IWearable;
 
@@ -90,7 +91,6 @@ public class RecipeBling implements IRecipe
                 }
                 for (ItemStack key : RecipeLoader.instance.knownTextures.keySet())
                 {
-                    System.out.println(key.getTagCompound() + " " + stack.getTagCompound());
                     if (RecipeLoader.isSameStack(key, stack))
                     {
                         if (gem) return false;
@@ -105,7 +105,6 @@ public class RecipeBling implements IRecipe
         if (dye)
         {
             output = worn.copy();
-            System.out.println("test");
             if (!output.hasTagCompound()) output.setTagCompound(new NBTTagCompound());
             int[] ids = OreDictionary.getOreIDs(dyeStack);
             int colour = dyeStack.getItemDamage();
@@ -132,7 +131,6 @@ public class RecipeBling implements IRecipe
         else if (gem)
         {
             output = worn.copy();
-            System.out.println("test");
             if (!output.hasTagCompound()) output.setTagCompound(new NBTTagCompound());
             if (output.getTagCompound().hasKey("gem"))
             {
@@ -155,8 +153,8 @@ public class RecipeBling implements IRecipe
             output.getTagCompound().removeTag("gem");
             if (output.getTagCompound().hasKey("gemTag"))
             {
-                NBTTagCompound tag = output.getSubCompound("gemTag", false);
-                toRemove = ItemStack.loadItemStackFromNBT(tag);
+                NBTTagCompound tag = CompatWrapper.getTag(output, "gemTag", false);
+                toRemove = CompatWrapper.fromTag(tag);
             }
             if (toRemove == null) output = null;
         }
@@ -165,7 +163,6 @@ public class RecipeBling implements IRecipe
             IWearable wear = (IWearable) worn.getItem();
             EnumWearable slot = wear.getSlot(worn);
             output = ItemBling.defaults.get(slot).copy();
-            System.out.println(ItemBling.defaults);
             if (RecipeLoader.isSameStack(worn, output)) output = null;
         }
         return output != null;

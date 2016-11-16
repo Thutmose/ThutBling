@@ -27,6 +27,7 @@ import net.minecraft.nbt.NBTException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.oredict.OreDictionary;
+import thut.wearables.CompatWrapper;
 
 public class RecipeLoader
 {
@@ -216,7 +217,7 @@ public class RecipeLoader
         if (item == null) return null;
         if (meta == -1) meta = 0;
         stack = new ItemStack(item, 1, meta);
-        stack.stackSize = size;
+        CompatWrapper.setStackSize(stack, size);
         if (!tag.isEmpty())
         {
             try

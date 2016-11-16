@@ -51,8 +51,8 @@ import thut.wearables.inventory.PlayerWearables;
 @Mod(modid = ThutBling.MODID, name = "Thut's Bling", dependencies = "required-after:thut_wearables;required-after:thutcore", version = ThutBling.VERSION)
 public class ThutBling
 {
-    public static final String MODID   = "thut_bling";
-    public static final String VERSION = "1.0.0";
+    public static final String MODID   = Reference.MODID;
+    public static final String VERSION = Reference.VERSION;
 
     @SidedProxy
     public static CommonProxy  proxy;
