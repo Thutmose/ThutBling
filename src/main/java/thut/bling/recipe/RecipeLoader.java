@@ -72,7 +72,7 @@ public class RecipeLoader
             for (XMLItem drop : database.items)
             {
                 ItemStack stack = getStackFromXMLItem(drop);
-                if (stack != null)
+                if (CompatWrapper.isValid(stack))
                 {
                     String tex = drop.values.get(TEX);
                     if (tex == null)
@@ -142,7 +142,7 @@ public class RecipeLoader
 
     public static boolean isSameStack(ItemStack a, ItemStack b)
     {
-        if ((a == null || a.getItem() == null) || (b == null || b.getItem() == null)) return false;
+        if (!CompatWrapper.isValid(a) || !CompatWrapper.isValid(b)) return false;
         int[] aID = OreDictionary.getOreIDs(a);
         int[] bID = OreDictionary.getOreIDs(b);
         boolean check = a.getItem() == b.getItem();
@@ -202,9 +202,9 @@ public class RecipeLoader
                 tag = values.get(key);
             }
         }
-        if (id.isEmpty()) return null;
+        if (id.isEmpty()) return CompatWrapper.nullStack;
         resource = id.contains(":");
-        ItemStack stack = null;
+        ItemStack stack = CompatWrapper.nullStack;
         Item item = null;
         if (resource)
         {
@@ -214,7 +214,7 @@ public class RecipeLoader
         {
             item = Item.REGISTRY.getObject(new ResourceLocation("minecraft:" + id));
         }
-        if (item == null) return null;
+        if (item == null) return CompatWrapper.nullStack;
         if (meta == -1) meta = 0;
         stack = new ItemStack(item, 1, meta);
         CompatWrapper.setStackSize(stack, size);
