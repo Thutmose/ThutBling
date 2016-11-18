@@ -42,8 +42,9 @@ public class RecipeBling implements IRecipe
     @Override
     public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv)
     {
-        NonNullList<ItemStack> nonnulllist = NonNullList.<ItemStack>func_191197_a(inv.getSizeInventory(), ItemStack.field_190927_a);
-        if (toRemove != null) nonnulllist.set(0, toRemove);
+        NonNullList<ItemStack> nonnulllist = NonNullList.<ItemStack> func_191197_a(inv.getSizeInventory(),
+                ItemStack.field_190927_a);
+        if (CompatWrapper.isValid(toRemove)) nonnulllist.set(0, toRemove);
         return nonnulllist;
     }
 
