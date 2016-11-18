@@ -17,8 +17,8 @@ import thut.wearables.IWearable;
 
 public class RecipeBling implements IRecipe
 {
-    private ItemStack toRemove = null;
-    private ItemStack output   = null;
+    private ItemStack toRemove = CompatWrapper.nullStack;
+    private ItemStack output   = CompatWrapper.nullStack;
 
     @Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
@@ -49,20 +49,20 @@ public class RecipeBling implements IRecipe
     @Override
     public boolean matches(InventoryCrafting inv, World worldIn)
     {
-        output = null;
-        toRemove = null;
+        output = CompatWrapper.nullStack;
+        toRemove = CompatWrapper.nullStack;
         boolean wearable = false;
         boolean dye = false;
         boolean gem = false;
-        ItemStack dyeStack = null;
-        ItemStack worn = null;
-        ItemStack gemStack = null;
+        ItemStack dyeStack = CompatWrapper.nullStack;
+        ItemStack worn = CompatWrapper.nullStack;
+        ItemStack gemStack = CompatWrapper.nullStack;
         int n = 0;
         craft:
         for (int i = 0; i < inv.getSizeInventory(); i++)
         {
             ItemStack stack = inv.getStackInSlot(i);
-            if (stack != null)
+            if (CompatWrapper.isValid(stack))
             {
                 n++;
                 if (stack.getItem() instanceof ItemBling)
@@ -134,7 +134,7 @@ public class RecipeBling implements IRecipe
             if (!output.hasTagCompound()) output.setTagCompound(new NBTTagCompound());
             if (output.getTagCompound().hasKey("gem"))
             {
-                output = null;
+                output = CompatWrapper.nullStack;
                 return false;
             }
             String tex = RecipeLoader.instance.knownTextures.get(gemStack);
@@ -156,15 +156,15 @@ public class RecipeBling implements IRecipe
                 NBTTagCompound tag = CompatWrapper.getTag(output, "gemTag", false);
                 toRemove = CompatWrapper.fromTag(tag);
             }
-            if (toRemove == null) output = null;
+            if (!CompatWrapper.isValid(toRemove)) output = CompatWrapper.nullStack;
         }
         else
         {
             IWearable wear = (IWearable) worn.getItem();
             EnumWearable slot = wear.getSlot(worn);
             output = ItemBling.defaults.get(slot).copy();
-            if (RecipeLoader.isSameStack(worn, output)) output = null;
+            if (RecipeLoader.isSameStack(worn, output)) output = CompatWrapper.nullStack;
         }
-        return output != null;
+        return CompatWrapper.isValid(output);
     }
 }
