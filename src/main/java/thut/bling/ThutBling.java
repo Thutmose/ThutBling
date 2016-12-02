@@ -36,6 +36,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.RecipeSorter;
+import net.minecraftforge.oredict.RecipeSorter.Category;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import thut.bling.bag.ContainerBag;
@@ -104,6 +106,7 @@ public class ThutBling
                 ItemBling.defaults.get(EnumWearable.WRIST)));
         GameRegistry.addRecipe(new ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.WRIST),
                 ItemBling.defaults.get(EnumWearable.ANKLE)));
+        RecipeSorter.register("thut_bling:bling", RecipeBling.class, Category.SHAPELESS, "after:minecraft:shapeless");
     }
 
     public static class CommonProxy implements IGuiHandler
