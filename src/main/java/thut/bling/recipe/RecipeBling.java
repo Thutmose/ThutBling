@@ -76,7 +76,7 @@ public class RecipeBling implements IDefaultRecipe
                     worn = stack;
                     continue;
                 }
-                List<ItemStack> dyes = OreDictionary.getOres("dye");
+                List<ItemStack> dyes = CompatWrapper.getOres("dye");
                 boolean isDye = false;
                 for (ItemStack dye1 : dyes)
                 {
