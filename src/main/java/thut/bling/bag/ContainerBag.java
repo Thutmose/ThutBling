@@ -36,11 +36,10 @@ public class ContainerBag extends ContainerChest
                     @Override
                     public boolean isItemValid(@Nullable ItemStack stack)
                     {
-                        System.out.println(stack + " " + bag+" "+(stack!=bag));
                         return stack != bag;
                     }
-                    
-                    @Override 
+
+                    @Override
                     public boolean canTakeStack(EntityPlayer playerIn)
                     {
                         return this.getStack() != bag;
@@ -58,11 +57,10 @@ public class ContainerBag extends ContainerChest
                     @Override
                     public boolean isItemValid(@Nullable ItemStack stack)
                     {
-                        System.out.println(stack + " " + bag+" "+(stack!=bag));
                         return stack != bag;
                     }
-                    
-                    @Override 
+
+                    @Override
                     public boolean canTakeStack(EntityPlayer playerIn)
                     {
                         return this.getStack() != bag;
@@ -78,11 +76,11 @@ public class ContainerBag extends ContainerChest
                 @Override
                 public boolean isItemValid(@Nullable ItemStack stack)
                 {
-                    System.out.println(stack + " " + bag+" "+(stack!=bag));
+                    System.out.println(stack + " " + bag + " " + (stack != bag));
                     return stack != bag;
                 }
-                
-                @Override 
+
+                @Override
                 public boolean canTakeStack(EntityPlayer playerIn)
                 {
                     return this.getStack() != bag;

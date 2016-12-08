@@ -123,9 +123,10 @@ public class ThutBling
         public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
         {
             PlayerWearables cap = ThutWearables.getWearables(player);
-            ItemStack bag = cap.getWearable(EnumWearable.BACK);
+            ItemStack bag = null;
             if (bag == null) bag = player.getHeldItemMainhand();
-            if (bag == null) bag = player.getHeldItemOffhand();
+            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
+            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
             if (bag == null || !(bag.getItem() instanceof ItemBling)) return null;
             return new ContainerBag(player, ContainerBag.init(bag), bag);
         }
@@ -150,9 +151,10 @@ public class ThutBling
         public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
         {
             PlayerWearables cap = ThutWearables.getWearables(player);
-            ItemStack bag = cap.getWearable(EnumWearable.BACK);
+            ItemStack bag = null;
             if (bag == null) bag = player.getHeldItemMainhand();
-            if (bag == null) bag = player.getHeldItemOffhand();
+            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
+            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
             if (bag == null || !(bag.getItem() instanceof ItemBling)) return null;
             return new GuiContainer(new ContainerBag(player, ContainerBag.init(bag), bag))
             {
