@@ -6,16 +6,16 @@ import java.util.Locale;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 import thut.bling.ItemBling;
+import thut.lib.IDefaultRecipe;
 import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
 import thut.wearables.IWearable;
 
-public class RecipeBling implements IRecipe
+public class RecipeBling implements IDefaultRecipe
 {
     private ItemStack toRemove = CompatWrapper.nullStack;
     private ItemStack output   = CompatWrapper.nullStack;
@@ -39,11 +39,15 @@ public class RecipeBling implements IRecipe
     }
 
     @Override
-    public ItemStack[] getRemainingItems(InventoryCrafting inv)
+    public ItemStack toKeep(int slot, ItemStack stackIn, InventoryCrafting inv)
     {
-        ItemStack[] ret = new ItemStack[inv.getSizeInventory()];
-        if (toRemove != null) ret[0] = toRemove;
-        return ret;
+        ItemStack stack = net.minecraftforge.common.ForgeHooks.getContainerItem(stackIn);
+        if (!CompatWrapper.isValid(stack) && CompatWrapper.isValid(toRemove))
+        {
+            stack = toRemove;
+            toRemove = CompatWrapper.nullStack;
+        }
+        return stack;
     }
 
     @Override

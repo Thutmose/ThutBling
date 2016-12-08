@@ -21,11 +21,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import thut.lib.CompatItem;
 import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
 import thut.wearables.IWearable;
 
-public class ItemBling extends Item implements IWearable
+public class ItemBling extends CompatItem implements IWearable
 {
     public static Map<String, EnumWearable>    wearables = Maps.newHashMap();
     public static Map<EnumWearable, ItemStack> defaults  = Maps.newHashMap();
@@ -107,17 +108,17 @@ public class ItemBling extends Item implements IWearable
     }
 
     @Override
-    /** returns a list of items with the same ID, but different meta (eg: dye
-     * returns 16 items) */
     @SideOnly(Side.CLIENT)
-    public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
+    protected List<ItemStack> getTabItems(Item itemIn, CreativeTabs tab)
     {
+        List<ItemStack> subItems = Lists.newArrayList();
         ItemStack stack;
         for (int i = 0; i < names.size(); i++)
         {
             stack = new ItemStack(itemIn, 1, i);
             subItems.add(stack);
         }
+        return subItems;
     }
 
     @Override
