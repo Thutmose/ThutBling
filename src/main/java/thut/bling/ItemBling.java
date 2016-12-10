@@ -100,7 +100,7 @@ public class ItemBling extends CompatItem implements IWearable
             EnumHand hand)
     {
         if (getSlot(itemStackIn) == EnumWearable.BACK)
-        {
+        {//TODO see why this is broken
             playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
         }
