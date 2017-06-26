@@ -25,6 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -33,6 +34,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -60,7 +62,20 @@ public class ThutBling
     public static CommonProxy  proxy;
     @Instance(value = MODID)
     public static ThutBling    instance;
-    public static Item         bling;
+    public static Item         bling   = new ItemBling().setRegistryName(MODID, "bling");
+
+    public ThutBling()
+    {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    public void registerBling(RegistryEvent.Register<Item> evt)
+    {
+        evt.getRegistry().register(bling);
+        bling.setCreativeTab(CreativeTabs.TOOLS);
+        ((ItemBling) bling).initDefaults();
+    }
 
     @Method(modid = "thutcore")
     @EventHandler
@@ -73,11 +88,6 @@ public class ThutBling
     public void preInit(FMLPreInitializationEvent e)
     {
         RecipeLoader.instance = new RecipeLoader(e);
-        bling = new ItemBling().setRegistryName(MODID, "bling");
-        GameRegistry.register(bling);
-        bling.setCreativeTab(CreativeTabs.TOOLS);
-        ((ItemBling) bling).initDefaults();
-        MinecraftForge.EVENT_BUS.register(this);
         proxy.preInit(e);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
     }
