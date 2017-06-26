@@ -6,7 +6,9 @@ import java.util.Locale;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 import thut.bling.ItemBling;
@@ -30,12 +32,6 @@ public class RecipeBling implements IDefaultRecipe
     public ItemStack getRecipeOutput()
     {
         return output;
-    }
-
-    @Override
-    public int getRecipeSize()
-    {
-        return 10;
     }
 
     @Override
@@ -170,5 +166,29 @@ public class RecipeBling implements IDefaultRecipe
             if (RecipeLoader.isSameStack(worn, output)) output = CompatWrapper.nullStack;
         }
         return CompatWrapper.isValid(output);
+    }
+
+    ResourceLocation registryName;
+
+    @Override
+    public IRecipe setRegistryName(ResourceLocation name)
+    {
+        registryName = name;
+        return this;
+    }
+
+    @Override
+    public ResourceLocation getRegistryName()
+    {
+        return registryName;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<IRecipe> getRegistryType()
+    {
+        Class<?> clazz = getClass();
+        Class<IRecipe> ret = (Class<IRecipe>) clazz;
+        return ret;
     }
 }

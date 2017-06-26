@@ -9,15 +9,13 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
@@ -37,14 +35,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.RecipeSorter;
-import net.minecraftforge.oredict.RecipeSorter.Category;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 import thut.bling.bag.ContainerBag;
 import thut.bling.client.item.TextureHandler;
-import thut.bling.recipe.RecipeBling;
 import thut.bling.recipe.RecipeLoader;
 import thut.core.client.render.model.IExtendedModelPart;
 import thut.core.client.render.x3d.X3dModel;
@@ -96,27 +88,42 @@ public class ThutBling
     public void postInit(FMLPostInitializationEvent e)
     {
         RecipeLoader.instance.init();
-        GameRegistry.addRecipe(new RecipeBling());
-        GameRegistry.addRecipe(new ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.WAIST),
-                new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.FINGER),
-                new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.WRIST),
-                new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.EAR),
-                new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.EYE),
-                new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK }));
-        GameRegistry.addRecipe(new ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.BACK),
-                new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S', Items.STRING, 'C', Blocks.CHEST }));
-        GameRegistry.addRecipe(new ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET));
-        GameRegistry.addRecipe(new ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.NECK),
-                ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING));
-        GameRegistry.addRecipe(new ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.ANKLE),
-                ItemBling.defaults.get(EnumWearable.WRIST)));
-        GameRegistry.addRecipe(new ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.WRIST),
-                ItemBling.defaults.get(EnumWearable.ANKLE)));
-        RecipeSorter.register("thut_bling:bling", RecipeBling.class, Category.SHAPELESS, "after:minecraft:shapeless");
+        // GameRegistry.addRecipe(new RecipeBling());
+        // GameRegistry.addRecipe(new
+        // ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.WAIST),
+        // new Object[] { " ", "LLL", " ", 'L', Items.LEATHER }));
+        // GameRegistry.addRecipe(new
+        // ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.FINGER),
+        // new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET }));
+        // GameRegistry.addRecipe(new
+        // ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.WRIST),
+        // new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER }));
+        // GameRegistry.addRecipe(new
+        // ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.EAR),
+        // new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S',
+        // Items.STRING }));
+        // GameRegistry.addRecipe(new
+        // ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.EYE),
+        // new Object[] { "SSS", "G G", " ", 'G', Items.GLASS_BOTTLE, 'S',
+        // Items.STICK }));
+        // GameRegistry.addRecipe(new
+        // ShapedOreRecipe(ItemBling.defaults.get(EnumWearable.BACK),
+        // new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S',
+        // Items.STRING, 'C', Blocks.CHEST }));
+        // GameRegistry.addRecipe(new
+        // ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.HAT),
+        // Items.LEATHER_HELMET));
+        // GameRegistry.addRecipe(new
+        // ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.NECK),
+        // ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING));
+        // GameRegistry.addRecipe(new
+        // ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.ANKLE),
+        // ItemBling.defaults.get(EnumWearable.WRIST)));
+        // GameRegistry.addRecipe(new
+        // ShapelessOreRecipe(ItemBling.defaults.get(EnumWearable.WRIST),
+        // ItemBling.defaults.get(EnumWearable.ANKLE)));
+        // RecipeSorter.register("thut_bling:bling", RecipeBling.class,
+        // Category.SHAPELESS, "after:minecraft:shapeless");
     }
 
     public static class CommonProxy implements IGuiHandler
@@ -201,7 +208,7 @@ public class ThutBling
                         .bindTexture(new ResourceLocation(MODID, "textures/items/eye.png"));
                 GL11.glTranslated(-0.25, -0.175, -0.251);
                 Tessellator tessellator = Tessellator.getInstance();
-                VertexBuffer vertexbuffer = tessellator.getBuffer();
+                BufferBuilder vertexbuffer = tessellator.getBuffer();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 double height = 0.5;
                 double width = 0.5;
@@ -307,7 +314,7 @@ public class ThutBling
             Minecraft minecraft = Minecraft.getMinecraft();
             int[] col;
             float s, sy, sx, sz, dx, dy, dz;
-            int brightness = wearer.getBrightnessForRender(partialTicks);
+            int brightness = wearer.getBrightnessForRender();
             EnumDyeColor ret;
             switch (slot)
             {
@@ -355,7 +362,7 @@ public class ThutBling
                     int damage = stack.getTagCompound().getInteger("dyeColour");
                     ret = EnumDyeColor.byDyeDamage(damage);
                 }
-                colour = new Color(ret.getMapColor().colorValue + 0xFF000000);
+                colour = new Color(ret.getColorValue() + 0xFF000000);
                 col = new int[] { colour.getRed(), colour.getBlue(), colour.getGreen(), 255, brightness };
                 for (IExtendedModelPart part1 : model[1].getParts().values())
                 {
@@ -438,7 +445,7 @@ public class ThutBling
                     int damage = stack.getTagCompound().getInteger("dyeColour");
                     ret = EnumDyeColor.byDyeDamage(damage);
                 }
-                colour = new Color(ret.getMapColor().colorValue + 0xFF000000);
+                colour = new Color(ret.getColorValue() + 0xFF000000);
                 col = new int[] { colour.getRed(), colour.getBlue(), colour.getGreen(), 255, brightness };
                 for (IExtendedModelPart part1 : model[1].getParts().values())
                 {
@@ -478,7 +485,7 @@ public class ThutBling
                     int damage = stack.getTagCompound().getInteger("dyeColour");
                     ret = EnumDyeColor.byDyeDamage(damage);
                 }
-                colour = new Color(ret.getMapColor().colorValue + 0xFF000000);
+                colour = new Color(ret.getColorValue() + 0xFF000000);
                 col = new int[] { colour.getRed(), colour.getBlue(), colour.getGreen(), 255, brightness };
                 IExtendedModelPart part = model[0].getParts().get(colorpart);
                 if (part != null)
@@ -563,7 +570,7 @@ public class ThutBling
                 int damage = stack.getTagCompound().getInteger("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
-            Color colour = new Color(ret.getMapColor().colorValue + 0xFF000000);
+            Color colour = new Color(ret.getColorValue() + 0xFF000000);
             int[] col = { colour.getRed(), colour.getBlue(), colour.getGreen(), 255, brightness };
             IExtendedModelPart part = model.getParts().get(colorpart);
             if (part != null)

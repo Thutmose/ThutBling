@@ -110,7 +110,7 @@ public class ContainerBag extends ContainerChest
 
     private void save(EntityPlayer playerIn)
     {
-        if (playerIn.worldObj.isRemote) return;
+        if (playerIn.world.isRemote) return;
         if (!bag.hasTagCompound()) bag.setTagCompound(new NBTTagCompound());
         NBTTagCompound inventoryTag = bag.getTagCompound();
         NBTTagList nbttaglist = new NBTTagList();

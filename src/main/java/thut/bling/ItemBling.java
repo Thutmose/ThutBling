@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -69,7 +70,7 @@ public class ItemBling extends CompatItem implements IWearable
      * description */
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean bool)
+    public void addInformation(ItemStack stack, World world, List<String> list, ITooltipFlag bool)
     {
         if (stack.hasTagCompound() && stack.getTagCompound().hasKey("dyeColour"))
         {
@@ -100,7 +101,7 @@ public class ItemBling extends CompatItem implements IWearable
             EnumHand hand)
     {
         if (getSlot(itemStackIn) == EnumWearable.BACK)
-        {//TODO see why this is broken
+        {// TODO see why this is broken
             playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
         }
