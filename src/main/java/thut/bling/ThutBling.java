@@ -92,7 +92,7 @@ public class ThutBling
     }
 
     @SubscribeEvent
-    public void registerRecipes()
+    public void initRecipes(RegistryEvent.Register<IRecipe> evt)
     {
         IRecipe recipe = new RecipeBling().setRegistryName(new ResourceLocation(MODID, "bling"));
         GameData.register_impl(recipe);
