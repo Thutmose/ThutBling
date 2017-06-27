@@ -98,7 +98,7 @@ public class ThutBling
         GameData.register_impl(recipe);
 
         recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.WAIST),
-                new Object[] { " ", "LLL", " ", 'L', Items.LEATHER })
+                new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER })
                         .setRegistryName(new ResourceLocation(MODID, "belt"));
         GameData.register_impl(recipe);
 
@@ -118,7 +118,7 @@ public class ThutBling
         GameData.register_impl(recipe);
 
         recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.EAR),
-                new Object[] { "SSS", "G G", " ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK })
+                new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK })
                         .setRegistryName(new ResourceLocation(MODID, "glasses"));
         GameData.register_impl(recipe);
 
