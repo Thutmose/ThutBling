@@ -96,56 +96,56 @@ public class ThutBling
     {
         IRecipe recipe = new RecipeBling().setRegistryName(new ResourceLocation(MODID, "bling"));
         GameData.register_impl(recipe);
-
-        recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.WAIST),
+        ResourceLocation group = new ResourceLocation(MODID, "bling");
+        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.WAIST),
                 new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER })
                         .setRegistryName(new ResourceLocation(MODID, "belt"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.FINGER),
+        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.FINGER),
                 new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET })
                         .setRegistryName(new ResourceLocation(MODID, "ring"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.WRIST),
+        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.WRIST),
                 new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER })
                         .setRegistryName(new ResourceLocation(MODID, "brace"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.EAR),
+        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.EAR),
                 new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING })
                         .setRegistryName(new ResourceLocation(MODID, "earring"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.EAR),
+        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.EAR),
                 new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK })
                         .setRegistryName(new ResourceLocation(MODID, "glasses"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.EYE),
+        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.EYE),
                 new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING })
                         .setRegistryName(new ResourceLocation(MODID, "earring"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapedOreRecipe(null, ItemBling.defaults.get(EnumWearable.BACK),
+        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.BACK),
                 new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S', Items.STRING, 'C', Blocks.CHEST })
                         .setRegistryName(new ResourceLocation(MODID, "bag"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapelessOreRecipe(null, ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET)
+        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET)
                 .setRegistryName(new ResourceLocation(MODID, "hat"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapelessOreRecipe(null, ItemBling.defaults.get(EnumWearable.NECK),
+        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.NECK),
                 ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING)
                         .setRegistryName(new ResourceLocation(MODID, "neck"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapelessOreRecipe(null, ItemBling.defaults.get(EnumWearable.ANKLE),
+        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.ANKLE),
                 ItemBling.defaults.get(EnumWearable.WRIST)).setRegistryName(new ResourceLocation(MODID, "ankle"));
         GameData.register_impl(recipe);
 
-        recipe = new ShapelessOreRecipe(null, ItemBling.defaults.get(EnumWearable.WRIST),
+        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.WRIST),
                 ItemBling.defaults.get(EnumWearable.ANKLE)).setRegistryName(new ResourceLocation(MODID, "wrist2"));
         GameData.register_impl(recipe);
     }
