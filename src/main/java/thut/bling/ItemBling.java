@@ -113,7 +113,7 @@ public class ItemBling extends CompatItem implements IWearable
     protected List<ItemStack> getTabItems(Item itemIn, CreativeTabs tab)
     {
         List<ItemStack> subItems = Lists.newArrayList();
-        if (tab != getCreativeTab()) return subItems;
+        if (!this.isInCreativeTab(tab)) return subItems;
         ItemStack stack;
         for (int i = 0; i < names.size(); i++)
         {
