@@ -298,6 +298,7 @@ public class ThutBling
                         return imodel;
                     }
                 }
+                else return imodel;
             }
             imodel = defaultModels.get(slot);
             return imodel;
@@ -322,6 +323,7 @@ public class ThutBling
                     customTextures.put(tex, textures);
                     return textures;
                 }
+                else return textures;
             }
             textures = defaultTextures.get(slot);
             return textures;
