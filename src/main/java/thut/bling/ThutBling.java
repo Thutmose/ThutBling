@@ -21,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -211,10 +212,29 @@ public class ThutBling
             if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
             if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
             if (bag == null || !(bag.getItem() instanceof ItemBling)) return null;
-            return new GuiContainer(new ContainerBag(player, ContainerBag.init(bag), bag))
+            final InventoryBasic inv = ContainerBag.init(bag);
+            return new GuiContainer(new ContainerBag(player, inv, bag))
             {
                 private final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation(
                         "textures/gui/container/generic_54.png");
+
+                /** Draws the screen and all the components in it. */
+                @Override
+                public void drawScreen(int mouseX, int mouseY, float partialTicks)
+                {
+                    this.drawDefaultBackground();
+                    super.drawScreen(mouseX, mouseY, partialTicks);
+                    this.renderHoveredToolTip(mouseX, mouseY);
+                }
+
+                /** Draw the foreground layer for the GuiContainer (everything
+                 * in front of the items) */
+                @Override
+                protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
+                {
+                    this.fontRenderer.drawString(inv.getDisplayName().getUnformattedText(), 8, 6, 4210752);
+                    this.fontRenderer.drawString(player.inventory.getDisplayName().getUnformattedText(), 8, 74, 4210752);
+                }
 
                 @Override
                 protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
