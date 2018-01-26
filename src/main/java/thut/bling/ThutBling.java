@@ -233,7 +233,8 @@ public class ThutBling
                 protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
                 {
                     this.fontRenderer.drawString(inv.getDisplayName().getUnformattedText(), 8, 6, 4210752);
-                    this.fontRenderer.drawString(player.inventory.getDisplayName().getUnformattedText(), 8, 74, 4210752);
+                    this.fontRenderer.drawString(player.inventory.getDisplayName().getUnformattedText(), 8, 74,
+                            4210752);
                 }
 
                 @Override
@@ -445,8 +446,8 @@ public class ThutBling
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
             col[0] = colour.getRed();
-            col[2] = colour.getGreen();
-            col[1] = colour.getBlue();
+            col[1] = colour.getGreen();
+            col[2] = colour.getBlue();
             for (IExtendedModelPart part1 : model.getParts().values())
             {
                 part1.setRGBAB(col);
@@ -541,8 +542,8 @@ public class ThutBling
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
             col[0] = colour.getRed();
-            col[2] = colour.getGreen();
-            col[1] = colour.getBlue();
+            col[1] = colour.getGreen();
+            col[2] = colour.getBlue();
             for (IExtendedModelPart part1 : model.getParts().values())
             {
                 part1.setRGBAB(col);
@@ -592,7 +593,7 @@ public class ThutBling
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
-            col = new int[] { colour.getRed(), colour.getBlue(), colour.getGreen(), 255, brightness };
+            col = new int[] { colour.getRed(), colour.getGreen(), colour.getBlue(), 255, brightness };
             IExtendedModelPart part = model.getParts().get(colorpart);
             if (part != null)
             {
@@ -659,7 +660,7 @@ public class ThutBling
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             Color colour = new Color(ret.getColorValue() + 0xFF000000);
-            int[] col = { colour.getRed(), colour.getBlue(), colour.getGreen(), 255, brightness };
+            int[] col = new int[] { colour.getRed(), colour.getGreen(), colour.getBlue(), 255, brightness };
             IExtendedModelPart part = model.getParts().get(colorpart);
 
             if (stack.hasTagCompound() && stack.getTagCompound().hasKey("gem"))
