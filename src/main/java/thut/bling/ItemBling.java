@@ -22,6 +22,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.IForgeRegistry;
+import thut.core.common.CreativeTabThut;
 import thut.lib.CompatItem;
 import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
@@ -32,6 +34,7 @@ public class ItemBling extends CompatItem implements IWearable
     public static Map<String, EnumWearable>    wearables = Maps.newHashMap();
     public static Map<EnumWearable, ItemStack> defaults  = Maps.newHashMap();
     public static List<String>                 names     = Lists.newArrayList();
+    public static List<Item>                   bling     = Lists.newArrayList();
     static
     {
         wearables.put("ring", EnumWearable.FINGER);
@@ -47,23 +50,35 @@ public class ItemBling extends CompatItem implements IWearable
         Collections.sort(names);
     }
 
-    public void initDefaults()
+    public static void initDefaults(IForgeRegistry<Item> iForgeRegistry)
     {
-        ItemStack stack;
-        for (int i = 0; i < names.size(); i++)
+        for (String s : names)
         {
-            String s = names.get(i);
-            stack = new ItemStack(this, 1, i);
-            defaults.put(wearables.get(s), stack.copy());
+            ItemBling bling = new ItemBling(s, wearables.get(s));
+            bling.setCreativeTab(CreativeTabs.DECORATIONS);
+            bling.setRegistryName(ThutBling.MODID, "bling_" + s);
+            bling.setUnlocalizedName("bling_" + s);
+            iForgeRegistry.register(bling);
+            defaults.put(wearables.get(s), new ItemStack(bling));
         }
     }
 
-    public ItemBling()
+    public static void initTabs(CreativeTabThut tabThut)
+    {
+        for (Item i : bling)
+            i.setCreativeTab(tabThut);
+    }
+
+    public final String        name;
+    private final EnumWearable slot;
+
+    public ItemBling(String name, EnumWearable slot)
     {
         super();
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setHasSubtypes(true);
+        this.name = name;
+        this.slot = slot;
     }
 
     /** allows items to add custom lines of information to the mouseover
@@ -145,18 +160,19 @@ public class ItemBling extends CompatItem implements IWearable
     @Override
     public EnumWearable getSlot(ItemStack stack)
     {
-        if (stack.hasTagCompound())
-        {
-            NBTTagCompound tag = stack.getTagCompound();
-            if (tag != null && tag.hasKey("type")) { return wearables.get(tag.getString("type")); }
-        }
-        return wearables.get(names.get(stack.getItemDamage() % names.size()));
+        return slot;
     }
 
     @Override
     public void renderWearable(EnumWearable slot, EntityLivingBase wearer, ItemStack stack, float partialTicks)
     {
         ThutBling.proxy.renderWearable(slot, wearer, stack, partialTicks);
+    }
+
+    @Override
+    public boolean dyeable(ItemStack stack)
+    {
+        return true;
     }
 
 }

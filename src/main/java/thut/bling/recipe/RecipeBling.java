@@ -1,21 +1,14 @@
 package thut.bling.recipe;
 
-import java.util.List;
-import java.util.Locale;
-
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.oredict.OreDictionary;
 import thut.bling.ItemBling;
 import thut.lib.IDefaultRecipe;
 import thut.wearables.CompatWrapper;
-import thut.wearables.EnumWearable;
-import thut.wearables.IWearable;
 
 public class RecipeBling implements IDefaultRecipe
 {
@@ -52,9 +45,7 @@ public class RecipeBling implements IDefaultRecipe
         output = CompatWrapper.nullStack;
         toRemove = CompatWrapper.nullStack;
         boolean wearable = false;
-        boolean dye = false;
         boolean gem = false;
-        ItemStack dyeStack = CompatWrapper.nullStack;
         ItemStack worn = CompatWrapper.nullStack;
         ItemStack gemStack = CompatWrapper.nullStack;
         int n = 0;
@@ -72,23 +63,6 @@ public class RecipeBling implements IDefaultRecipe
                     worn = stack;
                     continue;
                 }
-                List<ItemStack> dyes = CompatWrapper.getOres("dye");
-                boolean isDye = false;
-                for (ItemStack dye1 : dyes)
-                {
-                    if (OreDictionary.itemMatches(dye1, stack, false))
-                    {
-                        isDye = true;
-                        break;
-                    }
-                }
-                if (isDye)
-                {
-                    if (dye) return false;
-                    dye = true;
-                    dyeStack = stack;
-                    continue;
-                }
                 for (ItemStack key : RecipeLoader.instance.knownTextures.keySet())
                 {
                     if (RecipeLoader.isSameStack(key, stack))
@@ -102,33 +76,7 @@ public class RecipeBling implements IDefaultRecipe
             }
         }
         if (n > 2 || !wearable) return false;
-        if (dye)
-        {
-            output = worn.copy();
-            if (!output.hasTagCompound()) output.setTagCompound(new NBTTagCompound());
-            int[] ids = OreDictionary.getOreIDs(dyeStack);
-            int colour = dyeStack.getItemDamage();
-            for (int i : ids)
-            {
-                String name = OreDictionary.getOreName(i);
-                if (name.startsWith("dye") && name.length() > 3)
-                {
-                    String val = name.replace("dye", "").toUpperCase(Locale.ENGLISH);
-                    try
-                    {
-                        EnumDyeColor type = EnumDyeColor.valueOf(val);
-                        colour = type.getDyeDamage();
-                        break;
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            output.getTagCompound().setInteger("dyeColour", colour);
-        }
-        else if (gem)
+        if (gem)
         {
             output = worn.copy();
             if (!output.hasTagCompound()) output.setTagCompound(new NBTTagCompound());
@@ -147,7 +95,7 @@ public class RecipeBling implements IDefaultRecipe
             gemStack.writeToNBT(tag);
             output.getTagCompound().setTag("gemTag", tag);
         }
-        else if (!(gem || dye) && worn.hasTagCompound() && worn.getTagCompound().hasKey("gem"))
+        else if (!gem && worn.hasTagCompound() && worn.getTagCompound().hasKey("gem"))
         {
             output = worn.copy();
             output.getTagCompound().removeTag("gem");
@@ -160,10 +108,7 @@ public class RecipeBling implements IDefaultRecipe
         }
         else
         {
-            IWearable wear = (IWearable) worn.getItem();
-            EnumWearable slot = wear.getSlot(worn);
-            output = ItemBling.defaults.get(slot).copy();
-            if (RecipeLoader.isSameStack(worn, output)) output = CompatWrapper.nullStack;
+            output = CompatWrapper.nullStack;
         }
         return CompatWrapper.isValid(output);
     }

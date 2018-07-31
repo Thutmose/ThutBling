@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -41,11 +40,9 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 import net.minecraftforge.registries.GameData;
+import pokecube.core.database.recipes.RecipeJsonHelper;
 import thut.bling.bag.ContainerBag;
-import thut.bling.client.item.TextureHandler;
 import thut.bling.recipe.RecipeBling;
 import thut.bling.recipe.RecipeLoader;
 import thut.core.client.render.animation.ModelHolder;
@@ -67,7 +64,6 @@ public class ThutBling
     public static CommonProxy  proxy;
     @Instance(value = MODID)
     public static ThutBling    instance;
-    public static Item         bling   = new ItemBling().setRegistryName(MODID, "bling");
 
     public ThutBling()
     {
@@ -77,16 +73,14 @@ public class ThutBling
     @SubscribeEvent
     public void registerBling(RegistryEvent.Register<Item> evt)
     {
-        evt.getRegistry().register(bling);
-        bling.setCreativeTab(CreativeTabs.TOOLS);
-        ((ItemBling) bling).initDefaults();
+        ItemBling.initDefaults(evt.getRegistry());
     }
 
     @Method(modid = "thutcore")
     @EventHandler
     public void Init(FMLInitializationEvent e)
     {
-        bling.setCreativeTab(thut.core.common.ThutCore.tabThut);
+        ItemBling.initTabs(thut.core.common.ThutCore.tabThut);
     }
 
     @EventHandler
@@ -102,58 +96,26 @@ public class ThutBling
     {
         IRecipe recipe = new RecipeBling().setRegistryName(new ResourceLocation(MODID, "bling"));
         GameData.register_impl(recipe);
-        ResourceLocation group = new ResourceLocation(MODID, "bling");
-        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.WAIST),
-                new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER })
-                        .setRegistryName(new ResourceLocation(MODID, "belt"));
-        GameData.register_impl(recipe);
+        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WAIST),
+                new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER });
+        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.FINGER),
+                new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET });
+        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
+                new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER });
+        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EAR),
+                new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING });
+        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EYE),
+                new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK });
+        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.BACK),
+                new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S', Items.STRING, 'C', Blocks.CHEST });
 
-        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.FINGER),
-                new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET })
-                        .setRegistryName(new ResourceLocation(MODID, "ring"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.WRIST),
-                new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER })
-                        .setRegistryName(new ResourceLocation(MODID, "brace"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.EAR),
-                new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING })
-                        .setRegistryName(new ResourceLocation(MODID, "earring"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.EAR),
-                new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK })
-                        .setRegistryName(new ResourceLocation(MODID, "glasses"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.EYE),
-                new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING })
-                        .setRegistryName(new ResourceLocation(MODID, "earring"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapedOreRecipe(group, ItemBling.defaults.get(EnumWearable.BACK),
-                new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S', Items.STRING, 'C', Blocks.CHEST })
-                        .setRegistryName(new ResourceLocation(MODID, "bag"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET)
-                .setRegistryName(new ResourceLocation(MODID, "hat"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.NECK),
-                ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING)
-                        .setRegistryName(new ResourceLocation(MODID, "neck"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.ANKLE),
-                ItemBling.defaults.get(EnumWearable.WRIST)).setRegistryName(new ResourceLocation(MODID, "ankle"));
-        GameData.register_impl(recipe);
-
-        recipe = new ShapelessOreRecipe(group, ItemBling.defaults.get(EnumWearable.WRIST),
-                ItemBling.defaults.get(EnumWearable.ANKLE)).setRegistryName(new ResourceLocation(MODID, "wrist2"));
-        GameData.register_impl(recipe);
+        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET);
+        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.NECK),
+                ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING);
+        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.ANKLE),
+                ItemBling.defaults.get(EnumWearable.WRIST));
+        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
+                ItemBling.defaults.get(EnumWearable.ANKLE));
     }
 
     @EventHandler
@@ -253,7 +215,6 @@ public class ThutBling
         @Override
         public void preInit(FMLPreInitializationEvent event)
         {
-            TextureHandler.registerItemModels();
             MinecraftForge.EVENT_BUS.register(this);
         }
 
