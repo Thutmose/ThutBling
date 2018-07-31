@@ -17,8 +17,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.EnumDyeColor;
@@ -40,10 +38,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.registries.GameData;
-import pokecube.core.database.recipes.RecipeJsonHelper;
 import thut.bling.bag.ContainerBag;
-import thut.bling.recipe.RecipeBling;
 import thut.bling.recipe.RecipeLoader;
 import thut.core.client.render.animation.ModelHolder;
 import thut.core.client.render.model.IExtendedModelPart;
@@ -94,28 +89,28 @@ public class ThutBling
     @SubscribeEvent
     public void initRecipes(RegistryEvent.Register<IRecipe> evt)
     {
-        IRecipe recipe = new RecipeBling().setRegistryName(new ResourceLocation(MODID, "bling"));
-        GameData.register_impl(recipe);
-        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WAIST),
-                new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER });
-        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.FINGER),
-                new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET });
-        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
-                new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER });
-        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EAR),
-                new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING });
-        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EYE),
-                new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK });
-        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.BACK),
-                new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S', Items.STRING, 'C', Blocks.CHEST });
-
-        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET);
-        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.NECK),
-                ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING);
-        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.ANKLE),
-                ItemBling.defaults.get(EnumWearable.WRIST));
-        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
-                ItemBling.defaults.get(EnumWearable.ANKLE));
+//        IRecipe recipe = new RecipeBling().setRegistryName(new ResourceLocation(MODID, "bling"));
+//        GameData.register_impl(recipe);
+//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WAIST),
+//                new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER });
+//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.FINGER),
+//                new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET });
+//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
+//                new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER });
+//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EAR),
+//                new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING });
+//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EYE),
+//                new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK });
+//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.BACK),
+//                new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S', Items.STRING, 'C', Blocks.CHEST });
+//
+//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET);
+//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.NECK),
+//                ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING);
+//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.ANKLE),
+//                ItemBling.defaults.get(EnumWearable.WRIST));
+//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
+//                ItemBling.defaults.get(EnumWearable.ANKLE));
     }
 
     @EventHandler

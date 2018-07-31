@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -15,21 +16,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import thut.core.common.CreativeTabThut;
-import thut.lib.CompatItem;
 import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
 import thut.wearables.IWearable;
 
-public class ItemBling extends CompatItem implements IWearable
+public class ItemBling extends Item implements IWearable
 {
     public static Map<String, EnumWearable>    wearables = Maps.newHashMap();
     public static Map<EnumWearable, ItemStack> defaults  = Maps.newHashMap();
@@ -59,7 +60,12 @@ public class ItemBling extends CompatItem implements IWearable
             bling.setRegistryName(ThutBling.MODID, "bling_" + s);
             bling.setUnlocalizedName("bling_" + s);
             iForgeRegistry.register(bling);
+            if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+            {
+                ModelLoader.setCustomModelResourceLocation(bling, 0, new ModelResourceLocation(bling.getRegistryName(), "inventory"));
+            }
             defaults.put(wearables.get(s), new ItemStack(bling));
+            ItemBling.bling.add(bling);
         }
     }
 
@@ -112,49 +118,14 @@ public class ItemBling extends CompatItem implements IWearable
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn,
-            EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
-        if (getSlot(itemStackIn) == EnumWearable.BACK)
-        {// TODO see why this is broken
+        if (slot == EnumWearable.BACK)
+        {// TODO see why this is broken 
             playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
-            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
         }
-        return super.onItemRightClick(itemStackIn, worldIn, playerIn, hand);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    protected List<ItemStack> getTabItems(Item itemIn, CreativeTabs tab)
-    {
-        List<ItemStack> subItems = Lists.newArrayList();
-        if (!this.isInCreativeTab(tab)) return subItems;
-        ItemStack stack;
-        for (int i = 0; i < names.size(); i++)
-        {
-            stack = new ItemStack(itemIn, 1, i);
-            subItems.add(stack);
-        }
-        return subItems;
-    }
-
-    @Override
-    public String getUnlocalizedName(ItemStack stack)
-    {
-        String name = super.getUnlocalizedName(stack);
-        String variant = null;
-        if (stack.hasTagCompound())
-        {
-            NBTTagCompound tag = stack.getTagCompound();
-            if (tag != null && tag.hasKey("type"))
-            {
-                String stackname = tag.getString("type");
-                variant = stackname.toLowerCase(java.util.Locale.ENGLISH);
-            }
-        }
-        if (variant == null) variant = names.get(stack.getItemDamage() % names.size());
-        name = "item.bling." + variant;
-        return name;
+        return super.onItemRightClick(worldIn, playerIn, hand);
     }
 
     @Override
