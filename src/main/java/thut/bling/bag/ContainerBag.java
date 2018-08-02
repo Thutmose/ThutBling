@@ -91,8 +91,7 @@ public class ContainerBag extends ContainerChest
 
     public static InventoryBasic init(ItemStack bag)
     {
-        InventoryBasic inventory = new InventoryBasic("item.bling.bag.name", true, 27);
-        inventory.setCustomName("item.bling.bag.name");
+        InventoryBasic inventory = new InventoryBasic("item.bling_bag.name", false, 27);
         if (bag.hasTagCompound())
         {
             NBTTagList nbttaglist = bag.getTagCompound().getTagList("Inventory", 10);
