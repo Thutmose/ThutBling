@@ -2,22 +2,57 @@ package thut.bling.bag;
 
 import javax.annotation.Nullable;
 
+import invtweaks.api.container.ChestContainer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import thut.bling.ItemBling;
 import thut.wearables.CompatWrapper;
 import thut.wearables.ThutWearables;
 
+@ChestContainer(isLargeChest = false, showButtons = false)
 public class ContainerBag extends ContainerChest
 {
-    final ItemStack      bag;
-    final InventoryBasic inventory;
+    public static Container makeContainer(ItemStack bag, EntityPlayer player)
+    {
+        if (bag.getItem() instanceof ItemBling)
+        {
+            String name = ((ItemBling) bag.getItem()).name;
+            if (name.equals(
+                    "bag_ender_vanilla")) { return new ContainerBag(player, player.getInventoryEnderChest(), bag); }
+            if (name.equals("bag_ender_large")) { return new ContainerBagLarge(player.inventory); }
+        }
+        return new ContainerBag(player, init(bag, player), bag);
+    }
 
-    public ContainerBag(EntityPlayer player, InventoryBasic bagInventory, final ItemStack bag)
+    private static InventoryBasic init(ItemStack bag, EntityPlayer player)
+    {
+        InventoryBasic inventory = new InventoryBasic("item.bling_bag.name", false, 27);
+        if (bag.hasTagCompound())
+        {
+            NBTTagList nbttaglist = bag.getTagCompound().getTagList("Inventory", 10);
+            for (int i = 0; i < nbttaglist.tagCount(); ++i)
+            {
+                NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
+                int j = nbttagcompound1.getByte("Slot") & 255;
+                if (j < inventory.getSizeInventory())
+                {
+                    inventory.setInventorySlotContents(j, CompatWrapper.fromTag(nbttagcompound1));
+                }
+            }
+        }
+        return inventory;
+    }
+
+    final ItemStack             bag;
+    public final InventoryBasic inventory;
+
+    protected ContainerBag(EntityPlayer player, InventoryBasic bagInventory, final ItemStack bag)
     {
         super(player.inventory, bagInventory, player);
         this.inventory = bagInventory;
@@ -87,25 +122,6 @@ public class ContainerBag extends ContainerChest
                 }
             });
         }
-    }
-
-    public static InventoryBasic init(ItemStack bag)
-    {
-        InventoryBasic inventory = new InventoryBasic("item.bling_bag.name", false, 27);
-        if (bag.hasTagCompound())
-        {
-            NBTTagList nbttaglist = bag.getTagCompound().getTagList("Inventory", 10);
-            for (int i = 0; i < nbttaglist.tagCount(); ++i)
-            {
-                NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
-                int j = nbttagcompound1.getByte("Slot") & 255;
-                if (j < inventory.getSizeInventory())
-                {
-                    inventory.setInventorySlotContents(j, CompatWrapper.fromTag(nbttagcompound1));
-                }
-            }
-        }
-        return inventory;
     }
 
     private void save(EntityPlayer playerIn)

@@ -25,6 +25,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
+import thut.bling.bag.InventoryLarge;
 import thut.core.common.CreativeTabThut;
 import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
@@ -32,10 +33,10 @@ import thut.wearables.IWearable;
 
 public class ItemBling extends Item implements IWearable
 {
-    public static Map<String, EnumWearable>    wearables = Maps.newHashMap();
-    public static Map<EnumWearable, ItemStack> defaults  = Maps.newHashMap();
-    public static List<String>                 names     = Lists.newArrayList();
-    public static List<Item>                   bling     = Lists.newArrayList();
+    public static Map<String, EnumWearable> wearables = Maps.newHashMap();
+    public static Map<Item, EnumWearable>   defaults  = Maps.newHashMap();
+    public static List<String>              names     = Lists.newArrayList();
+    public static List<Item>                bling     = Lists.newArrayList();
     static
     {
         wearables.put("ring", EnumWearable.FINGER);
@@ -47,6 +48,8 @@ public class ItemBling extends Item implements IWearable
         wearables.put("waist", EnumWearable.WAIST);
         wearables.put("hat", EnumWearable.HAT);
         wearables.put("bag", EnumWearable.BACK);
+        wearables.put("bag_ender_vanilla", EnumWearable.BACK);
+        wearables.put("bag_ender_large", EnumWearable.BACK);
         names.addAll(wearables.keySet());
         Collections.sort(names);
     }
@@ -62,9 +65,9 @@ public class ItemBling extends Item implements IWearable
             iForgeRegistry.register(bling);
             if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
             {
-                ModelLoader.setCustomModelResourceLocation(bling, 0, new ModelResourceLocation(bling.getRegistryName(), "inventory"));
+                ModelLoader.setCustomModelResourceLocation(bling, 0,
+                        new ModelResourceLocation(bling.getRegistryName(), "inventory"));
             }
-            defaults.put(wearables.get(s), new ItemStack(bling));
             ItemBling.bling.add(bling);
         }
     }
@@ -85,6 +88,8 @@ public class ItemBling extends Item implements IWearable
         this.setMaxDamage(0);
         this.name = name;
         this.slot = slot;
+        defaults.put(this, slot);
+        if (name.equals("bag_ender_large")) InventoryLarge.INVALID.add(this);
     }
 
     /** allows items to add custom lines of information to the mouseover
@@ -121,7 +126,7 @@ public class ItemBling extends Item implements IWearable
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
         if (slot == EnumWearable.BACK)
-        {// TODO see why this is broken 
+        {// TODO see why this is broken
             playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
         }

@@ -10,7 +10,6 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -18,15 +17,16 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.IThreadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -38,7 +38,11 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 import thut.bling.bag.ContainerBag;
+import thut.bling.bag.InventoryLarge;
+import thut.bling.network.PacketBag;
 import thut.bling.recipe.RecipeLoader;
 import thut.core.client.render.animation.ModelHolder;
 import thut.core.client.render.model.IExtendedModelPart;
@@ -52,13 +56,14 @@ import thut.wearables.inventory.PlayerWearables;
 @Mod(modid = ThutBling.MODID, name = "Thut's Bling", dependencies = "required-after:thut_wearables;required-after:thutcore", version = ThutBling.VERSION, acceptedMinecraftVersions = Reference.MCVERSIONS)
 public class ThutBling
 {
-    public static final String MODID   = Reference.MODID;
-    public static final String VERSION = Reference.VERSION;
+    public static final String         MODID          = Reference.MODID;
+    public static final String         VERSION        = Reference.VERSION;
+    public static SimpleNetworkWrapper packetPipeline = new SimpleNetworkWrapper(MODID);
 
     @SidedProxy
-    public static CommonProxy  proxy;
+    public static CommonProxy          proxy;
     @Instance(value = MODID)
-    public static ThutBling    instance;
+    public static ThutBling            instance;
 
     public ThutBling()
     {
@@ -81,36 +86,17 @@ public class ThutBling
     @EventHandler
     public void preInit(FMLPreInitializationEvent e)
     {
+        Configuration config = new Configuration(e.getSuggestedConfigurationFile());
+        config.load();
+        InventoryLarge.PAGECOUNT = config.getInt("large_ender_pages", Configuration.CATEGORY_GENERAL,
+                InventoryLarge.PAGECOUNT, 1, 99, "Number of pages in the large ender bag");
         RecipeLoader.instance = new RecipeLoader(e);
         proxy.preInit(e);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
-    }
 
-    @SubscribeEvent
-    public void initRecipes(RegistryEvent.Register<IRecipe> evt)
-    {
-//        IRecipe recipe = new RecipeBling().setRegistryName(new ResourceLocation(MODID, "bling"));
-//        GameData.register_impl(recipe);
-//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WAIST),
-//                new Object[] { "   ", "LLL", "   ", 'L', Items.LEATHER });
-//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.FINGER),
-//                new Object[] { " L ", "L L", " L ", 'L', Items.GOLD_NUGGET });
-//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
-//                new Object[] { " L ", "L L", " L ", 'L', Items.LEATHER });
-//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EAR),
-//                new Object[] { "SLS", "L L", " L ", 'L', Items.GOLD_NUGGET, 'S', Items.STRING });
-//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.EYE),
-//                new Object[] { "SSS", "G G", "   ", 'G', Items.GLASS_BOTTLE, 'S', Items.STICK });
-//        RecipeJsonHelper.addShapedRecipe("bling", ItemBling.defaults.get(EnumWearable.BACK),
-//                new Object[] { "SLS", "LCL", " L ", 'L', Items.LEATHER, 'S', Items.STRING, 'C', Blocks.CHEST });
-//
-//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.HAT), Items.LEATHER_HELMET);
-//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.NECK),
-//                ItemBling.defaults.get(EnumWearable.FINGER), Items.STRING);
-//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.ANKLE),
-//                ItemBling.defaults.get(EnumWearable.WRIST));
-//        RecipeJsonHelper.addShapelessRecipe("bling", ItemBling.defaults.get(EnumWearable.WRIST),
-//                ItemBling.defaults.get(EnumWearable.ANKLE));
+        packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 0, Side.CLIENT);
+        packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 1, Side.SERVER);
+
     }
 
     @EventHandler
@@ -129,16 +115,26 @@ public class ThutBling
         {
         }
 
+        public EntityPlayer getClientPlayer()
+        {
+            return null;
+        }
+
+        public IThreadListener getMainThreadListener()
+        {
+            return FMLCommonHandler.instance().getMinecraftServerInstance();
+        }
+
         @Override
         public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
         {
             PlayerWearables cap = ThutWearables.getWearables(player);
-            ItemStack bag = null;
-            if (bag == null) bag = player.getHeldItemMainhand();
-            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
-            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
-            if (bag == null || !(bag.getItem() instanceof ItemBling)) return null;
-            return new ContainerBag(player, ContainerBag.init(bag), bag);
+            ItemStack bag = ItemStack.EMPTY;
+            if (bag.isEmpty()) bag = player.getHeldItemMainhand();
+            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
+            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
+            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) return null;
+            return ContainerBag.makeContainer(bag, player);
         }
 
         @Override
@@ -164,53 +160,31 @@ public class ThutBling
         public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
         {
             PlayerWearables cap = ThutWearables.getWearables(player);
-            ItemStack bag = null;
-            if (bag == null) bag = player.getHeldItemMainhand();
-            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
-            if (bag == null || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
-            if (bag == null || !(bag.getItem() instanceof ItemBling)) return null;
-            final InventoryBasic inv = ContainerBag.init(bag);
-            return new GuiContainer(new ContainerBag(player, inv, bag))
-            {
-                private final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation(
-                        "textures/gui/container/generic_54.png");
-
-                /** Draws the screen and all the components in it. */
-                @Override
-                public void drawScreen(int mouseX, int mouseY, float partialTicks)
-                {
-                    this.drawDefaultBackground();
-                    super.drawScreen(mouseX, mouseY, partialTicks);
-                    this.renderHoveredToolTip(mouseX, mouseY);
-                }
-
-                /** Draw the foreground layer for the GuiContainer (everything
-                 * in front of the items) */
-                @Override
-                protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
-                {
-                    this.fontRenderer.drawString(inv.getDisplayName().getUnformattedText(), 8, 6, 4210752);
-                    this.fontRenderer.drawString(player.inventory.getDisplayName().getUnformattedText(), 8, 74,
-                            4210752);
-                }
-
-                @Override
-                protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
-                {
-                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    this.mc.getTextureManager().bindTexture(CHEST_GUI_TEXTURE);
-                    int i = (this.width - this.xSize) / 2;
-                    int j = (this.height - this.ySize) / 2;
-                    this.drawTexturedModalRect(i, j, 0, 0, this.xSize, 3 * 18 + 17);
-                    this.drawTexturedModalRect(i, j + 3 * 18 + 17, 0, 126, this.xSize, 96);
-                }
-            };
+            ItemStack bag = ItemStack.EMPTY;
+            if (bag.isEmpty()) bag = player.getHeldItemMainhand();
+            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
+            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
+            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) return null;
+            return thut.bling.gui.GuiBag.createGui(ContainerBag.makeContainer(bag, player), player);
         }
 
         @Override
         public void preInit(FMLPreInitializationEvent event)
         {
             MinecraftForge.EVENT_BUS.register(this);
+        }
+
+        @Override
+        public EntityPlayer getClientPlayer()
+        {
+            return Minecraft.getMinecraft().player;
+        }
+
+        @Override
+        public IThreadListener getMainThreadListener()
+        {
+            if (super.getMainThreadListener() == null) { return Minecraft.getMinecraft(); }
+            return super.getMainThreadListener();
         }
 
         private void initDefaultModels()
