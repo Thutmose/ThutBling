@@ -90,6 +90,7 @@ public class ThutBling
         config.load();
         InventoryLarge.PAGECOUNT = config.getInt("large_ender_pages", Configuration.CATEGORY_GENERAL,
                 InventoryLarge.PAGECOUNT, 1, 99, "Number of pages in the large ender bag");
+        config.save();
         RecipeLoader.instance = new RecipeLoader(e);
         proxy.preInit(e);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);

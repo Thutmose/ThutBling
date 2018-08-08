@@ -97,13 +97,27 @@ public class ContainerBagLarge extends Container
 
         for (int i = 0; i < 9; i++)
         {
-            addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18 + xOffset, 142 + offset));
+            addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18 + xOffset, 142 + offset)
+            {
+                @Override
+                public boolean canTakeStack(EntityPlayer playerIn)
+                {
+                    return !InventoryLarge.INVALID.contains(getStack().getItem());
+                }
+            });
         }
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 9; j++)
             {
-                addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9, 8 + j * 18 + xOffset, 84 + i * 18 + offset));
+                addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9, 8 + j * 18 + xOffset, 84 + i * 18 + offset)
+                {
+                    @Override
+                    public boolean canTakeStack(EntityPlayer playerIn)
+                    {
+                        return !InventoryLarge.INVALID.contains(getStack().getItem());
+                    }
+                });
             }
         }
     }

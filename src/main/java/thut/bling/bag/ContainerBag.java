@@ -1,12 +1,13 @@
 package thut.bling.bag;
 
-import javax.annotation.Nullable;
+import java.util.UUID;
 
 import invtweaks.api.container.ChestContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -59,30 +60,19 @@ public class ContainerBag extends ContainerChest
         this.bag = bag;
         this.inventorySlots.clear();
         this.inventoryItemStacks.clear();
-
+        final UUID bagID = (bag.hasTagCompound() && bag.getTagCompound().hasKey("bagID"))
+                ? UUID.fromString(bag.getTagCompound().getString("bagID")) : UUID.randomUUID();
         int i = (3 - 4) * 18;
 
         for (int j = 0; j < 3; ++j)
         {
             for (int k = 0; k < 9; ++k)
             {
-                this.addSlotToContainer(new Slot(bagInventory, k + j * 9, 8 + k * 18, 18 + j * 18)
-                {
-                    @Override
-                    public boolean isItemValid(@Nullable ItemStack stack)
-                    {
-                        return stack != bag;
-                    }
-
-                    @Override
-                    public boolean canTakeStack(EntityPlayer playerIn)
-                    {
-                        return this.getStack() != bag;
-                    }
-                });
+                this.addSlotToContainer(new Slot(bagInventory, k + j * 9, 8 + k * 18, 18 + j * 18));
             }
         }
 
+        // Player main inventory.
         for (int l = 0; l < 3; ++l)
         {
             for (int j1 = 0; j1 < 9; ++j1)
@@ -90,35 +80,45 @@ public class ContainerBag extends ContainerChest
                 this.addSlotToContainer(new Slot(player.inventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i)
                 {
                     @Override
-                    public boolean isItemValid(@Nullable ItemStack stack)
-                    {
-                        return stack != bag;
-                    }
-
-                    @Override
                     public boolean canTakeStack(EntityPlayer playerIn)
                     {
-                        return this.getStack() != bag;
+                        UUID id = null;
+                        if (getStack().hasTagCompound() && getStack().getTagCompound().hasKey("bagID"))
+                        {
+                            try
+                            {
+                                id = UUID.fromString(getStack().getTagCompound().getString("bagID"));
+                            }
+                            catch (Exception e)
+                            {
+                            }
+                        }
+                        return !bagID.equals(id);
                     }
                 });
             }
         }
 
+        // Player hotbar.
         for (int i1 = 0; i1 < 9; ++i1)
         {
             this.addSlotToContainer(new Slot(player.inventory, i1, 8 + i1 * 18, 161 + i)
             {
                 @Override
-                public boolean isItemValid(@Nullable ItemStack stack)
-                {
-                    System.out.println(stack + " " + bag + " " + (stack != bag));
-                    return stack != bag;
-                }
-
-                @Override
                 public boolean canTakeStack(EntityPlayer playerIn)
                 {
-                    return this.getStack() != bag;
+                    UUID id = null;
+                    if (getStack().hasTagCompound() && getStack().getTagCompound().hasKey("bagID"))
+                    {
+                        try
+                        {
+                            id = UUID.fromString(getStack().getTagCompound().getString("bagID"));
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
+                    return !bagID.equals(id);
                 }
             });
         }
@@ -126,14 +126,18 @@ public class ContainerBag extends ContainerChest
 
     private void save(EntityPlayer playerIn)
     {
-        if (playerIn.world.isRemote) return;
+        if (playerIn.world.isRemote || inventory instanceof InventoryEnderChest) return;
         if (!bag.hasTagCompound()) bag.setTagCompound(new NBTTagCompound());
         NBTTagCompound inventoryTag = bag.getTagCompound();
+        if (!inventoryTag.hasKey("bagID"))
+        {
+            inventoryTag.setString("bagID", UUID.randomUUID().toString());
+        }
         NBTTagList nbttaglist = new NBTTagList();
         for (int i = 0; i < inventory.getSizeInventory(); ++i)
         {
             ItemStack itemstack = inventory.getStackInSlot(i);
-            if (itemstack != null)
+            if (!itemstack.isEmpty())
             {
                 NBTTagCompound nbttagcompound1 = new NBTTagCompound();
                 nbttagcompound1.setByte("Slot", (byte) i);

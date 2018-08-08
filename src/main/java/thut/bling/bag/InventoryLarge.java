@@ -34,7 +34,7 @@ public class InventoryLarge implements IInventory
     public static HashMap<UUID, InventoryLarge> map       = new HashMap<UUID, InventoryLarge>();
     public static UUID                          defaultID = new UUID(12345678910l, 12345678910l);
     public static UUID                          blankID   = new UUID(0, 0);
-    public static int                           PAGECOUNT = 32;
+    public static int                           PAGECOUNT = 2;
     // blank bag for client use.
     public static InventoryLarge                blank;
 
