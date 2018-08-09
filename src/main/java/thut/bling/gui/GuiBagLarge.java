@@ -138,12 +138,12 @@ public class GuiBagLarge extends GuiContainer
         buttonList.clear();
         int xOffset = 0;
         int yOffset = -11;
-        String next = I18n.format("tile.pc.next");
+        String next = I18n.format("gui.bag.next");
         buttonList.add(new GuiButton(1, width / 2 - xOffset + 15, height / 2 - yOffset, 50, 20, next));
-        String prev = I18n.format("tile.pc.previous");
+        String prev = I18n.format("gui.bag.previous");
         buttonList.add(new GuiButton(2, width / 2 - xOffset - 65, height / 2 - yOffset, 50, 20, prev));
 
-        String rename = I18n.format("tile.pc.rename");
+        String rename = I18n.format("gui.bag.rename");
         buttonList.add(new GuiButton(3, width / 2 - xOffset - 137, height / 2 - yOffset - 125, 50, 20, rename));
 
         textFieldSelectedBox = new GuiTextField(0, fontRenderer, width / 2 - xOffset - 13, height / 2 - yOffset + 5, 25,
