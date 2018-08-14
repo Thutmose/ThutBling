@@ -181,7 +181,7 @@ public class InventoryLarge implements IInventory
                 if (j >= 0 && j < load.getSizeInventory())
                 {
                     if (load.contents.containsKey(j)) continue;
-                    ItemStack itemstack = CompatWrapper.fromTag(nbttagcompound);
+                    ItemStack itemstack = new ItemStack(nbttagcompound);
                     load.setInventorySlotContents(j, itemstack);
                 }
             }
@@ -296,7 +296,7 @@ public class InventoryLarge implements IInventory
             }
             return itemstack;
         }
-        return CompatWrapper.nullStack;
+        return ItemStack.EMPTY;
     }
 
     public HashSet<ItemStack> getContents()
@@ -353,7 +353,9 @@ public class InventoryLarge implements IInventory
     @Override
     public ItemStack getStackInSlot(int i)
     {
-        return CompatWrapper.validate(contents.get(i));
+        ItemStack stack = contents.get(i);
+        if (stack == null) stack = ItemStack.EMPTY;
+        return stack;
     }
 
     @Override
@@ -390,7 +392,9 @@ public class InventoryLarge implements IInventory
     @Override
     public ItemStack removeStackFromSlot(int i)
     {
-        return CompatWrapper.validate(contents.remove(i));
+        ItemStack stack = contents.remove(i);
+        if (stack == null) stack = ItemStack.EMPTY;
+        return stack;
     }
 
     @Override

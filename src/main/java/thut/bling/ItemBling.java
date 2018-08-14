@@ -27,7 +27,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import thut.bling.bag.InventoryLarge;
 import thut.core.common.CreativeTabThut;
-import thut.wearables.CompatWrapper;
 import thut.wearables.EnumWearable;
 import thut.wearables.IWearable;
 
@@ -107,7 +106,7 @@ public class ItemBling extends Item implements IWearable
         }
         if (stack.hasTagCompound() && stack.getTagCompound().hasKey("gemTag"))
         {
-            ItemStack gem = CompatWrapper.fromTag(stack.getTagCompound().getCompoundTag("gemTag"));
+            ItemStack gem = new ItemStack(stack.getTagCompound().getCompoundTag("gemTag"));
             if (gem != null)
             {
                 try

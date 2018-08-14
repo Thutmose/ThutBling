@@ -12,8 +12,8 @@ import thut.wearables.CompatWrapper;
 
 public class RecipeBling implements IDefaultRecipe
 {
-    private ItemStack toRemove = CompatWrapper.nullStack;
-    private ItemStack output   = CompatWrapper.nullStack;
+    private ItemStack toRemove = ItemStack.EMPTY;
+    private ItemStack output   = ItemStack.EMPTY;
 
     @Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
@@ -34,7 +34,7 @@ public class RecipeBling implements IDefaultRecipe
         if (!CompatWrapper.isValid(stack) && CompatWrapper.isValid(toRemove))
         {
             stack = toRemove;
-            toRemove = CompatWrapper.nullStack;
+            toRemove = ItemStack.EMPTY;
         }
         return stack;
     }
@@ -42,12 +42,12 @@ public class RecipeBling implements IDefaultRecipe
     @Override
     public boolean matches(InventoryCrafting inv, World worldIn)
     {
-        output = CompatWrapper.nullStack;
-        toRemove = CompatWrapper.nullStack;
+        output = ItemStack.EMPTY;
+        toRemove = ItemStack.EMPTY;
         boolean wearable = false;
         boolean gem = false;
-        ItemStack worn = CompatWrapper.nullStack;
-        ItemStack gemStack = CompatWrapper.nullStack;
+        ItemStack worn = ItemStack.EMPTY;
+        ItemStack gemStack = ItemStack.EMPTY;
         int n = 0;
         craft:
         for (int i = 0; i < inv.getSizeInventory(); i++)
@@ -82,7 +82,7 @@ public class RecipeBling implements IDefaultRecipe
             if (!output.hasTagCompound()) output.setTagCompound(new NBTTagCompound());
             if (output.getTagCompound().hasKey("gem"))
             {
-                output = CompatWrapper.nullStack;
+                output = ItemStack.EMPTY;
                 return false;
             }
             String tex = RecipeLoader.instance.knownTextures.get(gemStack);
@@ -102,13 +102,13 @@ public class RecipeBling implements IDefaultRecipe
             if (output.getTagCompound().hasKey("gemTag"))
             {
                 NBTTagCompound tag = CompatWrapper.getTag(output, "gemTag", false);
-                toRemove = CompatWrapper.fromTag(tag);
+                toRemove = new ItemStack(tag);
             }
-            if (!CompatWrapper.isValid(toRemove)) output = CompatWrapper.nullStack;
+            if (!CompatWrapper.isValid(toRemove)) output = ItemStack.EMPTY;
         }
         else
         {
-            output = CompatWrapper.nullStack;
+            output = ItemStack.EMPTY;
         }
         return CompatWrapper.isValid(output);
     }

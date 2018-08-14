@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import thut.bling.ItemBling;
-import thut.wearables.CompatWrapper;
 import thut.wearables.ThutWearables;
 
 @ChestContainer(isLargeChest = false, showButtons = false)
@@ -43,7 +42,7 @@ public class ContainerBag extends ContainerChest
                 int j = nbttagcompound1.getByte("Slot") & 255;
                 if (j < inventory.getSizeInventory())
                 {
-                    inventory.setInventorySlotContents(j, CompatWrapper.fromTag(nbttagcompound1));
+                    inventory.setInventorySlotContents(j, new ItemStack(nbttagcompound1));
                 }
             }
         }
