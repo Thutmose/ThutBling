@@ -197,39 +197,32 @@ public class InventoryLarge implements IInventory
     public static NBTTagList saveToNBT(String uuid)
     {
         NBTTagList nbttag = new NBTTagList();
+        UUID player = UUID.fromString(uuid);
+        if (map.get(player) == null || blankID.equals(player)) { return nbttag; }
+        NBTTagCompound items = new NBTTagCompound();
+        NBTTagCompound boxes = new NBTTagCompound();
+        boxes.setString("UUID", player.toString());
+        boxes.setInteger("page", map.get(player).page);
 
-        for (UUID player : map.keySet())
+        for (int i = 0; i < PAGECOUNT; i++)
         {
-            if (map.get(player) == null || player == blankID)
-            {
-                continue;
-            }
-            NBTTagCompound items = new NBTTagCompound();
-            NBTTagCompound boxes = new NBTTagCompound();
-            boxes.setString("UUID", player.toString());
-            boxes.setInteger("page", map.get(player).page);
-
-            for (int i = 0; i < PAGECOUNT; i++)
-            {
-                boxes.setString("name" + i, map.get(player).boxes[i]);
-            }
-            items.setInteger("page", map.get(player).getPage());
-            for (int i = 0; i < map.get(player).getSizeInventory(); i++)
-            {
-                ItemStack itemstack = map.get(player).getStackInSlot(i);
-                NBTTagCompound nbttagcompound = new NBTTagCompound();
-
-                if (!itemstack.isEmpty())
-                {
-                    nbttagcompound.setShort("Slot", (short) i);
-                    itemstack.writeToNBT(nbttagcompound);
-                    items.setTag("item" + i, nbttagcompound);
-                }
-            }
-            items.setTag("boxes", boxes);
-            nbttag.appendTag(items);
+            boxes.setString("name" + i, map.get(player).boxes[i]);
         }
+        items.setInteger("page", map.get(player).getPage());
+        for (int i = 0; i < map.get(player).getSizeInventory(); i++)
+        {
+            ItemStack itemstack = map.get(player).getStackInSlot(i);
+            NBTTagCompound nbttagcompound = new NBTTagCompound();
 
+            if (!itemstack.isEmpty())
+            {
+                nbttagcompound.setShort("Slot", (short) i);
+                itemstack.writeToNBT(nbttagcompound);
+                items.setTag("item" + i, nbttagcompound);
+            }
+        }
+        items.setTag("boxes", boxes);
+        nbttag.appendTag(items);
         return nbttag;
     }
 
