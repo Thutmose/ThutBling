@@ -125,7 +125,7 @@ public class ItemBling extends Item implements IWearable
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
         if (slot == EnumWearable.BACK)
-        {// TODO see why this is broken
+        {
             playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
         }
