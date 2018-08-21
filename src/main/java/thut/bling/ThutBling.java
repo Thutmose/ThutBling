@@ -53,7 +53,7 @@ import thut.wearables.EnumWearable;
 import thut.wearables.ThutWearables;
 import thut.wearables.inventory.PlayerWearables;
 
-@Mod(modid = ThutBling.MODID, name = "Thut's Bling", dependencies = "required-after:thut_wearables;required-after:thutcore", version = ThutBling.VERSION, acceptedMinecraftVersions = Reference.MCVERSIONS)
+@Mod(modid = Reference.MODID, name = "Thut's Bling", dependencies = "required-after:thut_wearables;required-after:thutcore", version = Reference.VERSION, acceptableRemoteVersions = Reference.MINVERSION, acceptedMinecraftVersions = Reference.MCVERSIONS)
 public class ThutBling
 {
     public static final String         MODID          = Reference.MODID;
