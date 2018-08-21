@@ -126,7 +126,7 @@ public class ItemBling extends Item implements IWearable
     {
         if (slot == EnumWearable.BACK)
         {
-            playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
+            if (!worldIn.isRemote) playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
         }
         return super.onItemRightClick(worldIn, playerIn, hand);

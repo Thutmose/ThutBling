@@ -90,6 +90,10 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
                 container.gotoInventoryPage(message.data.getInteger("P"));
             }
         }
+        if (message.message == OPEN)
+        {
+
+        }
         if (message.message == RENAME)
         {
             if (container != null)
