@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import thut.bling.bag.InventoryLarge;
+import thut.bling.network.PacketBag;
 import thut.core.common.CreativeTabThut;
 import thut.wearables.EnumWearable;
 import thut.wearables.IWearable;
@@ -126,7 +127,7 @@ public class ItemBling extends Item implements IWearable
     {
         if (slot == EnumWearable.BACK)
         {
-            if (!worldIn.isRemote) playerIn.openGui(ThutBling.instance, 0, worldIn, 0, 0, 0);
+            if (!worldIn.isRemote) PacketBag.OpenBag(playerIn);
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
         }
         return super.onItemRightClick(worldIn, playerIn, hand);

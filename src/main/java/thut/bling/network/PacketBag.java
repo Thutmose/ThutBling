@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -21,8 +22,28 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
     public static final byte ONOPEN  = 2;
     public static final byte OPEN    = 3;
 
-    byte                     message;
-    public NBTTagCompound    data    = new NBTTagCompound();
+    public static void OpenBag(EntityPlayer playerIn)
+    {
+        InventoryLarge inv = InventoryLarge.getBag(playerIn);
+        PacketBag packet = new PacketBag(PacketBag.ONOPEN);
+        packet.data.setInteger("N", inv.boxes.length);
+        packet.data.setInteger("S", InventoryLarge.PAGECOUNT);
+        for (int i = 0; i < inv.boxes.length; i++)
+        {
+            packet.data.setString("N" + i, inv.boxes[i]);
+        }
+        ThutBling.packetPipeline.sendTo(packet, (EntityPlayerMP) playerIn);
+        for (int i = 0; i < inv.boxes.length; i++)
+        {
+            packet = new PacketBag(PacketBag.OPEN);
+            packet.data = inv.serializeBox(i);
+            ThutBling.packetPipeline.sendTo(packet, (EntityPlayerMP) playerIn);
+        }
+        playerIn.openGui(ThutBling.instance, 0, playerIn.getEntityWorld(), 0, 0, 0);
+    }
+
+    byte                  message;
+    public NBTTagCompound data = new NBTTagCompound();
 
     public PacketBag()
     {
@@ -83,6 +104,7 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
         }
         ContainerBagLarge container = null;
         if (player.openContainer instanceof ContainerBagLarge) container = (ContainerBagLarge) player.openContainer;
+
         if (message.message == SETPAGE)
         {
             if (container != null)
@@ -90,9 +112,10 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
                 container.gotoInventoryPage(message.data.getInteger("P"));
             }
         }
-        if (message.message == OPEN)
+        if (message.message == OPEN && ctx.side == Side.CLIENT)
         {
-
+            InventoryLarge inv = InventoryLarge.getBag(player);
+            inv.deserializeBox(message.data);
         }
         if (message.message == RENAME)
         {
@@ -104,7 +127,6 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
         }
         if (message.message == ONOPEN)
         {
-            InventoryLarge.blank = new InventoryLarge(InventoryLarge.blankID);
             InventoryLarge bag = InventoryLarge.getBag(player);
             int num = message.data.getInteger("N");
             InventoryLarge.PAGECOUNT = message.data.getInteger("S");

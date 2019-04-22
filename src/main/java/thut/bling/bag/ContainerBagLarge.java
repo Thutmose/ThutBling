@@ -2,7 +2,6 @@ package thut.bling.bag;
 
 import invtweaks.api.container.ChestContainer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
@@ -31,17 +30,6 @@ public class ContainerBagLarge extends Container
         invBag = InventoryLarge.getBag(ivplay.player);
         invPlayer = ivplay;
         bindInventories();
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
-        {
-            PacketBag packet = new PacketBag(PacketBag.ONOPEN);
-            packet.data.setInteger("N", invBag.boxes.length);
-            packet.data.setInteger("S", InventoryLarge.PAGECOUNT);
-            for (int i = 0; i < invBag.boxes.length; i++)
-            {
-                packet.data.setString("N" + i, invBag.boxes[i]);
-            }
-            ThutBling.packetPipeline.sendTo(packet, (EntityPlayerMP) ivplay.player);
-        }
     }
 
     /**
