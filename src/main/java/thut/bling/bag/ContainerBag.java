@@ -239,8 +239,9 @@ public class ContainerBag extends ContainerChest
     @Override
     public void onContainerClosed(EntityPlayer playerIn)
     {
-        super.onContainerClosed(playerIn);
         save(playerIn);
+        super.onContainerClosed(playerIn);
+        inventory.closeInventory(playerIn);
     }
 
     @Override
