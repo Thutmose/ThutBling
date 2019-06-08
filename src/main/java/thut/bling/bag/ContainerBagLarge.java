@@ -1,12 +1,12 @@
 package thut.bling.bag;
 
 import invtweaks.api.container.ChestContainer;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import thut.bling.ThutBling;
 import thut.bling.network.PacketBag;
 import thut.lib.CompatWrapper;
