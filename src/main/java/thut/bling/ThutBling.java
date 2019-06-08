@@ -14,8 +14,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
@@ -34,7 +34,7 @@ import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLCommonSetupEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -83,7 +83,7 @@ public class ThutBling
     }
 
     @EventHandler
-    public void preInit(FMLPreInitializationEvent e)
+    public void preInit(FMLCommonSetupEvent e)
     {
         Configuration config = new Configuration(e.getSuggestedConfigurationFile());
         config.load();
@@ -94,8 +94,8 @@ public class ThutBling
         proxy.preInit(e);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
 
-        packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 0, Side.CLIENT);
-        packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 1, Side.SERVER);
+        packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 0, Dist.CLIENT);
+        packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 1, Dist.DEDICATED_SERVER);
 
     }
 
@@ -107,15 +107,15 @@ public class ThutBling
 
     public static class CommonProxy implements IGuiHandler
     {
-        public void preInit(FMLPreInitializationEvent event)
+        public void preInit(FMLCommonSetupEvent event)
         {
         }
 
-        public void renderWearable(EnumWearable slot, EntityLivingBase wearer, ItemStack stack, float partialTicks)
+        public void renderWearable(EnumWearable slot, LivingEntity wearer, ItemStack stack, float partialTicks)
         {
         }
 
-        public EntityPlayer getClientPlayer()
+        public PlayerEntity getClientPlayer()
         {
             return null;
         }
@@ -126,7 +126,7 @@ public class ThutBling
         }
 
         @Override
-        public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+        public Object getServerGuiElement(int ID, PlayerEntity player, World world, int x, int y, int z)
         {
             PlayerWearables cap = ThutWearables.getWearables(player);
             ItemStack bag = ItemStack.EMPTY;
@@ -138,7 +138,7 @@ public class ThutBling
         }
 
         @Override
-        public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+        public Object getClientGuiElement(int ID, PlayerEntity player, World world, int x, int y, int z)
         {
             return null;
         }
@@ -157,7 +157,7 @@ public class ThutBling
         Map<String, ResourceLocation[]>       customTextures  = Maps.newHashMap();
 
         @Override
-        public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+        public Object getClientGuiElement(int ID, PlayerEntity player, World world, int x, int y, int z)
         {
             PlayerWearables cap = ThutWearables.getWearables(player);
             ItemStack bag = ItemStack.EMPTY;
@@ -169,21 +169,21 @@ public class ThutBling
         }
 
         @Override
-        public void preInit(FMLPreInitializationEvent event)
+        public void preInit(FMLCommonSetupEvent event)
         {
             MinecraftForge.EVENT_BUS.register(this);
         }
 
         @Override
-        public EntityPlayer getClientPlayer()
+        public PlayerEntity getClientPlayer()
         {
-            return Minecraft.getMinecraft().player;
+            return Minecraft.getInstance().player;
         }
 
         @Override
         public IThreadListener getMainThreadListener()
         {
-            if (super.getMainThreadListener() == null) { return Minecraft.getMinecraft(); }
+            if (super.getMainThreadListener() == null) { return Minecraft.getInstance(); }
             return super.getMainThreadListener();
         }
 
@@ -235,9 +235,9 @@ public class ThutBling
         private IModel getModels(EnumWearable slot, ItemStack stack)
         {
             IModel imodel;
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("model"))
+            if (stack.hasTag() && stack.getTag().hasKey("model"))
             {
-                String model = stack.getTagCompound().getString("model");
+                String model = stack.getTag().getString("model");
                 imodel = customModels.get(model);
                 if (imodel == null)
                 {
@@ -258,17 +258,17 @@ public class ThutBling
         private ResourceLocation[] getTextures(EnumWearable slot, ItemStack stack)
         {
             ResourceLocation[] textures;
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("tex"))
+            if (stack.hasTag() && stack.getTag().hasKey("tex"))
             {
-                String tex = stack.getTagCompound().getString("tex");
+                String tex = stack.getTag().getString("tex");
                 textures = customTextures.get(tex);
                 if (textures == null)
                 {
                     textures = new ResourceLocation[2];
                     textures[0] = new ResourceLocation(tex);
-                    if (stack.getTagCompound().hasKey("tex2"))
+                    if (stack.getTag().hasKey("tex2"))
                     {
-                        textures[1] = new ResourceLocation(stack.getTagCompound().getString("tex2"));
+                        textures[1] = new ResourceLocation(stack.getTag().getString("tex2"));
                     }
                     else textures[1] = textures[0];
                     customTextures.put(tex, textures);
@@ -281,7 +281,7 @@ public class ThutBling
         }
 
         @Override
-        public void renderWearable(EnumWearable slot, EntityLivingBase wearer, ItemStack stack, float partialTicks)
+        public void renderWearable(EnumWearable slot, LivingEntity wearer, ItemStack stack, float partialTicks)
         {
             initDefaultModels();
             IModel model = getModels(slot, stack);
@@ -322,7 +322,7 @@ public class ThutBling
             }
         }
 
-        private void renderAnkle(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderAnkle(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             float s, sy, sx, sz, dx, dy, dz;
@@ -338,7 +338,7 @@ public class ThutBling
             renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
         }
 
-        private void renderBack(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderBack(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             if (!(model instanceof IModelCustom)) return;
@@ -349,7 +349,7 @@ public class ThutBling
             int[] col;
 
             ResourceLocation[] tex = textures.clone();
-            Minecraft minecraft = Minecraft.getMinecraft();
+            Minecraft minecraft = Minecraft.getInstance();
             float s;
             GlStateManager.pushMatrix();
             s = 0.65f;
@@ -369,9 +369,9 @@ public class ThutBling
             GL11.glScaled(s, -s, -s);
             minecraft.renderEngine.bindTexture(tex[1]);
             ret = EnumDyeColor.RED;
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("dyeColour"))
+            if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTagCompound().getInteger("dyeColour");
+                int damage = stack.getTag().getInteger("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
@@ -390,7 +390,7 @@ public class ThutBling
             GlStateManager.popMatrix();
         }
 
-        private void renderEar(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderEar(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             float s, dx, dy, dz;
@@ -403,12 +403,12 @@ public class ThutBling
             renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
         }
 
-        private void renderEye(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderEye(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             // TODO eye by model instead of texture.
             GlStateManager.pushMatrix();
-            Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(MODID, "textures/items/eye.png"));
+            Minecraft.getInstance().renderEngine.bindTexture(new ResourceLocation(MODID, "textures/items/eye.png"));
             GL11.glTranslated(-0.26, -0.175, -0.251);
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder vertexbuffer = tessellator.getBuffer();
@@ -424,7 +424,7 @@ public class ThutBling
             GL11.glPopMatrix();
         }
 
-        private void renderFinger(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderFinger(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             float s, dx, dy, dz;
@@ -437,7 +437,7 @@ public class ThutBling
             renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
         }
 
-        private void renderHat(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderHat(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             if (!(model instanceof IModelCustom)) return;
@@ -448,7 +448,7 @@ public class ThutBling
             int[] col;
 
             ResourceLocation[] tex = textures.clone();
-            Minecraft minecraft = Minecraft.getMinecraft();
+            Minecraft minecraft = Minecraft.getInstance();
             float s;
             GlStateManager.pushMatrix();
             s = 0.285f;
@@ -465,9 +465,9 @@ public class ThutBling
             GL11.glScaled(s * 0.995f, -s * 0.995f, -s * 0.995f);
             minecraft.renderEngine.bindTexture(tex[1]);
             ret = EnumDyeColor.RED;
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("dyeColour"))
+            if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTagCompound().getInteger("dyeColour");
+                int damage = stack.getTag().getInteger("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
@@ -483,7 +483,7 @@ public class ThutBling
             GlStateManager.popMatrix();
         }
 
-        private void renderNeck(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderNeck(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             if (!(model instanceof IModelCustom)) return;
@@ -501,9 +501,9 @@ public class ThutBling
             {
                 s = 0.465f;
             }
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("gem"))
+            if (stack.hasTag() && stack.getTag().hasKey("gem"))
             {
-                tex[0] = new ResourceLocation(stack.getTagCompound().getString("gem"));
+                tex[0] = new ResourceLocation(stack.getTag().getString("gem"));
             }
             else
             {
@@ -517,9 +517,9 @@ public class ThutBling
             String colorpart = "main";
             String itempart = "gem";
             ret = EnumDyeColor.YELLOW;
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("dyeColour"))
+            if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTagCompound().getInteger("dyeColour");
+                int damage = stack.getTag().getInteger("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
@@ -528,7 +528,7 @@ public class ThutBling
             if (part != null)
             {
                 part.setRGBAB(col);
-                Minecraft.getMinecraft().renderEngine.bindTexture(tex[1]);
+                Minecraft.getInstance().renderEngine.bindTexture(tex[1]);
                 GlStateManager.scale(1, 1, .1);
                 renderable.renderPart(colorpart);
             }
@@ -536,7 +536,7 @@ public class ThutBling
             part = model.getParts().get(itempart);
             if (part != null && tex[0] != null)
             {
-                Minecraft.getMinecraft().renderEngine.bindTexture(tex[0]);
+                Minecraft.getInstance().renderEngine.bindTexture(tex[0]);
                 GlStateManager.scale(1, 1, 10);
                 GlStateManager.translate(0, 0.01, -0.075);
                 renderable.renderPart(itempart);
@@ -544,7 +544,7 @@ public class ThutBling
             GL11.glPopMatrix();
         }
 
-        private void renderWaist(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderWaist(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             float s, dx, dy, dz;
@@ -561,7 +561,7 @@ public class ThutBling
             renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
         }
 
-        private void renderWrist(EntityLivingBase wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
+        private void renderWrist(LivingEntity wearer, ItemStack stack, IModel model, ResourceLocation[] textures,
                 int brightness)
         {
             float s, sy, sx, sz, dx, dy, dz;
@@ -584,18 +584,18 @@ public class ThutBling
             tex = tex.clone();
             IModelCustom renderable = (IModelCustom) model;
             EnumDyeColor ret = EnumDyeColor.YELLOW;
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("dyeColour"))
+            if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTagCompound().getInteger("dyeColour");
+                int damage = stack.getTag().getInteger("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             Color colour = new Color(ret.getColorValue() + 0xFF000000);
             int[] col = new int[] { colour.getRed(), colour.getGreen(), colour.getBlue(), 255, brightness };
             IExtendedModelPart part = model.getParts().get(colorpart);
 
-            if (stack.hasTagCompound() && stack.getTagCompound().hasKey("gem"))
+            if (stack.hasTag() && stack.getTag().hasKey("gem"))
             {
-                tex[0] = new ResourceLocation(stack.getTagCompound().getString("gem"));
+                tex[0] = new ResourceLocation(stack.getTag().getString("gem"));
             }
             else
             {
@@ -609,14 +609,14 @@ public class ThutBling
             if (part != null)
             {
                 part.setRGBAB(col);
-                Minecraft.getMinecraft().renderEngine.bindTexture(tex[1]);
+                Minecraft.getInstance().renderEngine.bindTexture(tex[1]);
                 renderable.renderPart(colorpart);
             }
             GL11.glColor3f(1, 1, 1);
             part = model.getParts().get(itempart);
             if (part != null && tex[0] != null)
             {
-                Minecraft.getMinecraft().renderEngine.bindTexture(tex[0]);
+                Minecraft.getInstance().renderEngine.bindTexture(tex[0]);
                 renderable.renderPart(itempart);
             }
             GL11.glPopMatrix();

@@ -5,9 +5,9 @@ import java.io.IOException;
 import javax.xml.ws.handler.MessageContext;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -23,7 +23,7 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
     public static final byte ONOPEN  = 2;
     public static final byte OPEN    = 3;
 
-    public static void OpenBag(EntityPlayer playerIn)
+    public static void OpenBag(PlayerEntity playerIn)
     {
         InventoryLarge inv = InventoryLarge.getBag(playerIn);
         PacketBag packet = new PacketBag(PacketBag.ONOPEN);
@@ -31,20 +31,20 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
         packet.data.setInteger("S", InventoryLarge.PAGECOUNT);
         for (int i = 0; i < inv.boxes.length; i++)
         {
-            packet.data.setString("N" + i, inv.boxes[i]);
+            packet.data.putString("N" + i, inv.boxes[i]);
         }
-        ThutBling.packetPipeline.sendTo(packet, (EntityPlayerMP) playerIn);
+        ThutBling.packetPipeline.sendTo(packet, (ServerPlayerEntity) playerIn);
         for (int i = 0; i < inv.boxes.length; i++)
         {
             packet = new PacketBag(PacketBag.OPEN);
             packet.data = inv.serializeBox(i);
-            ThutBling.packetPipeline.sendTo(packet, (EntityPlayerMP) playerIn);
+            ThutBling.packetPipeline.sendTo(packet, (ServerPlayerEntity) playerIn);
         }
         playerIn.openGui(ThutBling.instance, 0, playerIn.getEntityWorld(), 0, 0, 0);
     }
 
     byte                  message;
-    public NBTTagCompound data = new NBTTagCompound();
+    public CompoundNBT data = new CompoundNBT();
 
     public PacketBag()
     {
@@ -94,8 +94,8 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
 
     void processMessage(MessageContext ctx, PacketBag message)
     {
-        EntityPlayer player;
-        if (ctx.side == Side.CLIENT)
+        PlayerEntity player;
+        if (ctx.side == Dist.CLIENT)
         {
             player = ThutBling.proxy.getClientPlayer();
         }
@@ -113,7 +113,7 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
                 container.gotoInventoryPage(message.data.getInteger("P"));
             }
         }
-        if (message.message == OPEN && ctx.side == Side.CLIENT)
+        if (message.message == OPEN && ctx.side == Dist.CLIENT)
         {
             InventoryLarge inv = InventoryLarge.getBag(player);
             inv.deserializeBox(message.data);

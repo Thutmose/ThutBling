@@ -3,7 +3,7 @@ package thut.bling.recipe;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import thut.bling.ItemBling;
@@ -79,8 +79,8 @@ public class RecipeBling implements IDefaultRecipe
         if (gem)
         {
             output = worn.copy();
-            if (!output.hasTagCompound()) output.setTagCompound(new NBTTagCompound());
-            if (output.getTagCompound().hasKey("gem"))
+            if (!output.hasTag()) output.setTag(new CompoundNBT());
+            if (output.getTag().hasKey("gem"))
             {
                 output = ItemStack.EMPTY;
                 return false;
@@ -90,18 +90,18 @@ public class RecipeBling implements IDefaultRecipe
             {
                 tex = "minecraft:textures/blocks/stone.png";
             }
-            output.getTagCompound().setString("gem", tex);
-            NBTTagCompound tag = new NBTTagCompound();
+            output.getTag().putString("gem", tex);
+            CompoundNBT tag = new CompoundNBT();
             gemStack.writeToNBT(tag);
-            output.getTagCompound().setTag("gemTag", tag);
+            output.getTag().setTag("gemTag", tag);
         }
-        else if (!gem && worn.hasTagCompound() && worn.getTagCompound().hasKey("gem"))
+        else if (!gem && worn.hasTag() && worn.getTag().hasKey("gem"))
         {
             output = worn.copy();
-            output.getTagCompound().removeTag("gem");
-            if (output.getTagCompound().hasKey("gemTag"))
+            output.getTag().remove("gem");
+            if (output.getTag().hasKey("gemTag"))
             {
-                NBTTagCompound tag = CompatWrapper.getTag(output, "gemTag", false);
+                CompoundNBT tag = CompatWrapper.getTag(output, "gemTag", false);
                 toRemove = new ItemStack(tag);
             }
             if (!CompatWrapper.isValid(toRemove)) output = ItemStack.EMPTY;

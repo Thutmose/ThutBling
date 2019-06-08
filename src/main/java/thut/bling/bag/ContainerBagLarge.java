@@ -1,7 +1,7 @@
 package thut.bling.bag;
 
 import invtweaks.api.container.ChestContainer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -86,7 +86,7 @@ public class ContainerBagLarge extends Container
             addSlotToContainer(new Slot(invPlayer, i, 8 + i * 18 + xOffset, 142 + offset)
             {
                 @Override
-                public boolean canTakeStack(EntityPlayer playerIn)
+                public boolean canTakeStack(PlayerEntity playerIn)
                 {
                     return !InventoryLarge.INVALID.contains(getStack().getItem());
                 }
@@ -99,7 +99,7 @@ public class ContainerBagLarge extends Container
                 addSlotToContainer(new Slot(invPlayer, j + i * 9 + 9, 8 + j * 18 + xOffset, 84 + i * 18 + offset)
                 {
                     @Override
-                    public boolean canTakeStack(EntityPlayer playerIn)
+                    public boolean canTakeStack(PlayerEntity playerIn)
                     {
                         return !InventoryLarge.INVALID.contains(getStack().getItem());
                     }
@@ -109,7 +109,7 @@ public class ContainerBagLarge extends Container
     }
 
     @Override
-    public boolean canInteractWith(EntityPlayer entityplayer)
+    public boolean canInteractWith(PlayerEntity PlayerEntity)
     {
         return true;
     }
@@ -117,10 +117,10 @@ public class ContainerBagLarge extends Container
     public void changeName(String name)
     {
         invBag.boxes[invBag.getPage()] = name;
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+        if (FMLCommonHandler.instance().getEffectiveSide() == Dist.CLIENT)
         {
             PacketBag packet = new PacketBag(PacketBag.RENAME);
-            packet.data.setString("N", name);
+            packet.data.putString("N", name);
             ThutBling.packetPipeline.sendToServer(packet);
         }
     }
@@ -130,7 +130,7 @@ public class ContainerBagLarge extends Container
         this.inventorySlots.clear();
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public String getPage()
     {
         if (invBag.getPage() < 0)
@@ -141,7 +141,7 @@ public class ContainerBagLarge extends Container
         return invBag.boxes[invBag.getPage()];
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public String getPageNb()
     {
         return Integer.toString(invBag.getPage() + 1);
@@ -157,7 +157,7 @@ public class ContainerBagLarge extends Container
     {
         if (page - 1 == invBag.getPage()) return;
         invBag.setPage(page - 1);
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+        if (FMLCommonHandler.instance().getEffectiveSide() == Dist.CLIENT)
         {
             PacketBag packet = new PacketBag(PacketBag.SETPAGE);
             packet.data.setInteger("P", page);
@@ -168,7 +168,7 @@ public class ContainerBagLarge extends Container
     }
 
     @Override
-    public void onContainerClosed(EntityPlayer player)
+    public void onContainerClosed(PlayerEntity player)
     {
         super.onContainerClosed(player);
         invBag.closeInventory(player);
@@ -182,7 +182,7 @@ public class ContainerBagLarge extends Container
     }
 
     @Override
-    public ItemStack transferStackInSlot(EntityPlayer player, int index)
+    public ItemStack transferStackInSlot(PlayerEntity player, int index)
     {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.inventorySlots.get(index);

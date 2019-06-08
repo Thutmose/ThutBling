@@ -11,14 +11,14 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -63,7 +63,7 @@ public class ItemBling extends Item implements IWearable
             bling.setRegistryName(ThutBling.MODID, "bling_" + s);
             bling.setUnlocalizedName("bling_" + s);
             iForgeRegistry.register(bling);
-            if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+            if (FMLCommonHandler.instance().getEffectiveSide() == Dist.CLIENT)
             {
                 ModelLoader.setCustomModelResourceLocation(bling, 0,
                         new ModelResourceLocation(bling.getRegistryName(), "inventory"));
@@ -94,20 +94,20 @@ public class ItemBling extends Item implements IWearable
 
     /** allows items to add custom lines of information to the mouseover
      * description */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack stack, World world, List<String> list, ITooltipFlag bool)
     {
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("dyeColour"))
+        if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
         {
-            int damage = stack.getTagCompound().getInteger("dyeColour");
+            int damage = stack.getTag().getInteger("dyeColour");
             EnumDyeColor colour = EnumDyeColor.byDyeDamage(damage);
             String s = I18n.format(colour.getUnlocalizedName());
             list.add(s);
         }
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("gemTag"))
+        if (stack.hasTag() && stack.getTag().hasKey("gemTag"))
         {
-            ItemStack gem = new ItemStack(stack.getTagCompound().getCompoundTag("gemTag"));
+            ItemStack gem = new ItemStack(stack.getTag().getCompound("gemTag"));
             if (gem != null)
             {
                 try
@@ -123,7 +123,7 @@ public class ItemBling extends Item implements IWearable
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand hand)
     {
         if (slot == EnumWearable.BACK)
         {
@@ -140,7 +140,7 @@ public class ItemBling extends Item implements IWearable
     }
 
     @Override
-    public void renderWearable(EnumWearable slot, EntityLivingBase wearer, ItemStack stack, float partialTicks)
+    public void renderWearable(EnumWearable slot, LivingEntity wearer, ItemStack stack, float partialTicks)
     {
         ThutBling.proxy.renderWearable(slot, wearer, stack, partialTicks);
     }

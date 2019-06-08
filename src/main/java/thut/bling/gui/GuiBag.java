@@ -3,14 +3,14 @@ package thut.bling.gui;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import thut.bling.bag.ContainerBag;
 import thut.bling.bag.ContainerBagLarge;
 
 public class GuiBag extends GuiContainer
 {
-    public static Object createGui(Container container, EntityPlayer player)
+    public static Object createGui(Container container, PlayerEntity player)
     {
         if (container instanceof ContainerBag) return new GuiBag((ContainerBag) container, player);
         if (container instanceof ContainerBagLarge) return new GuiBagLarge((ContainerBagLarge) container);
@@ -18,9 +18,9 @@ public class GuiBag extends GuiContainer
     }
 
     final ContainerBag container;
-    final EntityPlayer player;
+    final PlayerEntity player;
 
-    public GuiBag(ContainerBag inventorySlotsIn, EntityPlayer player)
+    public GuiBag(ContainerBag inventorySlotsIn, PlayerEntity player)
     {
         super(inventorySlotsIn);
         this.container = inventorySlotsIn;

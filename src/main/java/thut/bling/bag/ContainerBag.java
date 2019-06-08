@@ -6,14 +6,14 @@ import java.io.FileOutputStream;
 import java.util.UUID;
 
 import invtweaks.api.container.ChestContainer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -39,17 +39,17 @@ public class ContainerBag extends ContainerChest
         try
         {
             FileInputStream fileinputstream = new FileInputStream(file);
-            NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(fileinputstream);
+            CompoundNBT CompoundNBT = CompressedStreamTools.readCompressed(fileinputstream);
             fileinputstream.close();
-            NBTTagCompound tag = nbttagcompound.getCompoundTag("Data");
-            NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
-            for (int i = 0; i < nbttaglist.tagCount(); ++i)
+            CompoundNBT tag = CompoundNBT.getCompound("Data");
+            ListNBT ListNBT = tag.getTagList("Inventory", 10);
+            for (int i = 0; i < ListNBT.size(); ++i)
             {
-                NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
-                int j = nbttagcompound1.getByte("Slot") & 255;
+                CompoundNBT CompoundNBT1 = ListNBT.getCompound(i);
+                int j = CompoundNBT1.getByte("Slot") & 255;
                 if (j < inventory.getSizeInventory())
                 {
-                    inventory.setInventorySlotContents(j, new ItemStack(nbttagcompound1));
+                    inventory.setInventorySlotContents(j, new ItemStack(CompoundNBT1));
                 }
             }
             return true;
@@ -64,31 +64,31 @@ public class ContainerBag extends ContainerChest
 
     public static void saveBag(ItemStack bag, InventoryBasic inventory)
     {
-        if (!bag.hasTagCompound()) bag.setTagCompound(new NBTTagCompound());
-        NBTTagCompound inventoryTag = bag.getTagCompound();
+        if (!bag.hasTag()) bag.setTag(new CompoundNBT());
+        CompoundNBT inventoryTag = bag.getTag();
         if (!inventoryTag.hasKey("bagID"))
         {
-            inventoryTag.setString("bagID", UUID.randomUUID().toString());
+            inventoryTag.putString("bagID", UUID.randomUUID().toString());
         }
         // Remove the legacy tag
-        inventoryTag.removeTag("Inventory");
+        inventoryTag.remove("Inventory");
 
-        UUID bagID = UUID.fromString(bag.getTagCompound().getString("bagID"));
+        UUID bagID = UUID.fromString(bag.getTag().getString("bagID"));
 
-        NBTTagCompound tag = new NBTTagCompound();
-        NBTTagList nbttaglist = new NBTTagList();
+        CompoundNBT tag = new CompoundNBT();
+        ListNBT ListNBT = new ListNBT();
         for (int i = 0; i < inventory.getSizeInventory(); ++i)
         {
             ItemStack itemstack = inventory.getStackInSlot(i);
             if (!itemstack.isEmpty())
             {
-                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-                nbttagcompound1.setByte("Slot", (byte) i);
-                itemstack.writeToNBT(nbttagcompound1);
-                nbttaglist.appendTag(nbttagcompound1);
+                CompoundNBT CompoundNBT1 = new CompoundNBT();
+                CompoundNBT1.setByte("Slot", (byte) i);
+                itemstack.writeToNBT(CompoundNBT1);
+                ListNBT.appendTag(CompoundNBT1);
             }
         }
-        tag.setTag("Inventory", nbttaglist);
+        tag.setTag("Inventory", ListNBT);
         World world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0);
         ISaveHandler saveHandler = world.getSaveHandler();
         String seperator = System.getProperty("file.separator");
@@ -100,12 +100,12 @@ public class ContainerBag extends ContainerChest
         }
         if (file != null)
         {
-            NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-            nbttagcompound1.setTag("Data", tag);
+            CompoundNBT CompoundNBT1 = new CompoundNBT();
+            CompoundNBT1.setTag("Data", tag);
             try
             {
                 FileOutputStream fileoutputstream = new FileOutputStream(file);
-                CompressedStreamTools.writeCompressed(nbttagcompound1, fileoutputstream);
+                CompressedStreamTools.writeCompressed(CompoundNBT1, fileoutputstream);
                 fileoutputstream.close();
             }
             catch (Exception e)
@@ -116,7 +116,7 @@ public class ContainerBag extends ContainerChest
         }
     }
 
-    public static Container makeContainer(ItemStack bag, EntityPlayer player)
+    public static Container makeContainer(ItemStack bag, PlayerEntity player)
     {
         if (bag.getItem() instanceof ItemBling)
         {
@@ -128,24 +128,24 @@ public class ContainerBag extends ContainerChest
         return new ContainerBag(player, init(bag, player), bag);
     }
 
-    private static InventoryBasic init(ItemStack bag, EntityPlayer player)
+    private static InventoryBasic init(ItemStack bag, PlayerEntity player)
     {
         InventoryBasic inventory = new InventoryBasic("item.bling_bag.name", false, 27);
-        if (bag.hasTagCompound() && bag.getTagCompound().hasKey("bagID") && !player.getEntityWorld().isRemote)
+        if (bag.hasTag() && bag.getTag().hasKey("bagID") && !player.getEntityWorld().isRemote)
         {
-            UUID id = UUID.fromString(bag.getTagCompound().getString("bagID"));
+            UUID id = UUID.fromString(bag.getTag().getString("bagID"));
             // Try loading bag.
             if (!loadBag(id, inventory))
             {
                 // Otherwise legacy load
-                NBTTagList nbttaglist = bag.getTagCompound().getTagList("Inventory", 10);
-                for (int i = 0; i < nbttaglist.tagCount(); ++i)
+                ListNBT ListNBT = bag.getTag().getTagList("Inventory", 10);
+                for (int i = 0; i < ListNBT.size(); ++i)
                 {
-                    NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
-                    int j = nbttagcompound1.getByte("Slot") & 255;
+                    CompoundNBT CompoundNBT1 = ListNBT.getCompound(i);
+                    int j = CompoundNBT1.getByte("Slot") & 255;
                     if (j < inventory.getSizeInventory())
                     {
-                        inventory.setInventorySlotContents(j, new ItemStack(nbttagcompound1));
+                        inventory.setInventorySlotContents(j, new ItemStack(CompoundNBT1));
                     }
                 }
             }
@@ -156,15 +156,15 @@ public class ContainerBag extends ContainerChest
     final ItemStack             bag;
     public final InventoryBasic inventory;
 
-    protected ContainerBag(EntityPlayer player, InventoryBasic bagInventory, final ItemStack bag)
+    protected ContainerBag(PlayerEntity player, InventoryBasic bagInventory, final ItemStack bag)
     {
         super(player.inventory, bagInventory, player);
         this.inventory = bagInventory;
         this.bag = bag;
         this.inventorySlots.clear();
         this.inventoryItemStacks.clear();
-        final UUID bagID = (bag.hasTagCompound() && bag.getTagCompound().hasKey("bagID"))
-                ? UUID.fromString(bag.getTagCompound().getString("bagID")) : UUID.randomUUID();
+        final UUID bagID = (bag.hasTag() && bag.getTag().hasKey("bagID"))
+                ? UUID.fromString(bag.getTag().getString("bagID")) : UUID.randomUUID();
         int i = (3 - 4) * 18;
 
         for (int j = 0; j < 3; ++j)
@@ -183,14 +183,14 @@ public class ContainerBag extends ContainerChest
                 this.addSlotToContainer(new Slot(player.inventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i)
                 {
                     @Override
-                    public boolean canTakeStack(EntityPlayer playerIn)
+                    public boolean canTakeStack(PlayerEntity playerIn)
                     {
                         UUID id = null;
-                        if (getStack().hasTagCompound() && getStack().getTagCompound().hasKey("bagID"))
+                        if (getStack().hasTag() && getStack().getTag().hasKey("bagID"))
                         {
                             try
                             {
-                                id = UUID.fromString(getStack().getTagCompound().getString("bagID"));
+                                id = UUID.fromString(getStack().getTag().getString("bagID"));
                             }
                             catch (Exception e)
                             {
@@ -208,14 +208,14 @@ public class ContainerBag extends ContainerChest
             this.addSlotToContainer(new Slot(player.inventory, i1, 8 + i1 * 18, 161 + i)
             {
                 @Override
-                public boolean canTakeStack(EntityPlayer playerIn)
+                public boolean canTakeStack(PlayerEntity playerIn)
                 {
                     UUID id = null;
-                    if (getStack().hasTagCompound() && getStack().getTagCompound().hasKey("bagID"))
+                    if (getStack().hasTag() && getStack().getTag().hasKey("bagID"))
                     {
                         try
                         {
-                            id = UUID.fromString(getStack().getTagCompound().getString("bagID"));
+                            id = UUID.fromString(getStack().getTag().getString("bagID"));
                         }
                         catch (Exception e)
                         {
@@ -227,7 +227,7 @@ public class ContainerBag extends ContainerChest
         }
     }
 
-    private void save(EntityPlayer playerIn)
+    private void save(PlayerEntity playerIn)
     {
         if (playerIn.world.isRemote || inventory instanceof InventoryEnderChest) return;
         saveBag(bag, inventory);
@@ -235,7 +235,7 @@ public class ContainerBag extends ContainerChest
     }
 
     @Override
-    public void onContainerClosed(EntityPlayer playerIn)
+    public void onContainerClosed(PlayerEntity playerIn)
     {
         save(playerIn);
         super.onContainerClosed(playerIn);
@@ -243,7 +243,7 @@ public class ContainerBag extends ContainerChest
     }
 
     @Override
-    public boolean canInteractWith(EntityPlayer playerIn)
+    public boolean canInteractWith(PlayerEntity playerIn)
     {
         return true;
     }
