@@ -1,9 +1,9 @@
 package thut.bling.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import thut.bling.bag.ContainerBag;
 import thut.bling.bag.ContainerBagLarge;

@@ -7,11 +7,9 @@ import java.util.UUID;
 
 import invtweaks.api.container.ChestContainer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.InventoryEnderChest;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
