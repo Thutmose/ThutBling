@@ -110,7 +110,7 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
         {
             if (container != null)
             {
-                container.gotoInventoryPage(message.data.getInteger("P"));
+                container.gotoInventoryPage(message.data.getInt("P"));
             }
         }
         if (message.message == OPEN && ctx.side == Dist.CLIENT)
@@ -129,8 +129,8 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
         if (message.message == ONOPEN)
         {
             InventoryLarge bag = InventoryLarge.getBag(player);
-            int num = message.data.getInteger("N");
-            InventoryLarge.PAGECOUNT = message.data.getInteger("S");
+            int num = message.data.getInt("N");
+            InventoryLarge.PAGECOUNT = message.data.getInt("S");
             bag.boxes = new String[num];
             for (int i = 0; i < bag.boxes.length; i++)
             {

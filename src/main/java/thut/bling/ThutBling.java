@@ -371,7 +371,7 @@ public class ThutBling
             ret = EnumDyeColor.RED;
             if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTag().getInteger("dyeColour");
+                int damage = stack.getTag().getInt("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
@@ -467,7 +467,7 @@ public class ThutBling
             ret = EnumDyeColor.RED;
             if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTag().getInteger("dyeColour");
+                int damage = stack.getTag().getInt("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
@@ -519,7 +519,7 @@ public class ThutBling
             ret = EnumDyeColor.YELLOW;
             if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTag().getInteger("dyeColour");
+                int damage = stack.getTag().getInt("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             colour = new Color(ret.getColorValue() + 0xFF000000);
@@ -586,7 +586,7 @@ public class ThutBling
             EnumDyeColor ret = EnumDyeColor.YELLOW;
             if (stack.hasTag() && stack.getTag().hasKey("dyeColour"))
             {
-                int damage = stack.getTag().getInteger("dyeColour");
+                int damage = stack.getTag().getInt("dyeColour");
                 ret = EnumDyeColor.byDyeDamage(damage);
             }
             Color colour = new Color(ret.getColorValue() + 0xFF000000);

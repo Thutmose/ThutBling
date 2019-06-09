@@ -164,7 +164,7 @@ public class InventoryLarge implements IInventory
                 {
                     load = replace ? new InventoryLarge(uuid) : getBag(uuid);
                     if (load == null) continue tags;
-                    load.setPage(boxes.getInteger("page"));
+                    load.setPage(boxes.getInt("page"));
                 }
                 if (boxes.getString("name" + k) != null)
                 {
@@ -435,7 +435,7 @@ public class InventoryLarge implements IInventory
 
     public void deserializeBox(CompoundNBT nbt)
     {
-        int start = nbt.getInteger("box") * 54;
+        int start = nbt.getInt("box") * 54;
         for (int i = start; i < start + 54; i++)
         {
             if (!nbt.hasKey("item" + i)) continue;
