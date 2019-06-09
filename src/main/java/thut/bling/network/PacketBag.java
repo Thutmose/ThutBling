@@ -27,8 +27,8 @@ public class PacketBag implements IMessage, IMessageHandler<PacketBag, IMessage>
     {
         InventoryLarge inv = InventoryLarge.getBag(playerIn);
         PacketBag packet = new PacketBag(PacketBag.ONOPEN);
-        packet.data.setInteger("N", inv.boxes.length);
-        packet.data.setInteger("S", InventoryLarge.PAGECOUNT);
+        packet.data.putInt("N", inv.boxes.length);
+        packet.data.putInt("S", InventoryLarge.PAGECOUNT);
         for (int i = 0; i < inv.boxes.length; i++)
         {
             packet.data.putString("N" + i, inv.boxes[i]);

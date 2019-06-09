@@ -160,7 +160,7 @@ public class ContainerBagLarge extends Container
         if (FMLCommonHandler.instance().getEffectiveSide() == Dist.CLIENT)
         {
             PacketBag packet = new PacketBag(PacketBag.SETPAGE);
-            packet.data.setInteger("P", page);
+            packet.data.putInt("P", page);
             ThutBling.packetPipeline.sendToServer(packet);
             invBag.clear();
         }

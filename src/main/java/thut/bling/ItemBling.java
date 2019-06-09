@@ -17,7 +17,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -128,7 +128,7 @@ public class ItemBling extends Item implements IWearable
         if (slot == EnumWearable.BACK)
         {
             if (!worldIn.isRemote) PacketBag.OpenBag(playerIn);
-            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(hand));
+            return new ActionResult<ItemStack>(ActionResultType.SUCCESS, playerIn.getHeldItem(hand));
         }
         return super.onItemRightClick(worldIn, playerIn, hand);
     }
