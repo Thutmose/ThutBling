@@ -1,608 +1,112 @@
 package thut.bling;
 
-import java.awt.Color;
-import java.util.Map;
-
-import javax.vecmath.Vector3f;
-
-import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.GlStateManager;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.Optional.Method;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.network.IGuiHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import thut.bling.bag.ContainerBag;
-import thut.bling.bag.InventoryLarge;
-import thut.bling.network.PacketBag;
-import thut.bling.recipe.RecipeLoader;
-import thut.core.client.render.animation.ModelHolder;
-import thut.core.client.render.model.IExtendedModelPart;
-import thut.core.client.render.model.IModel;
-import thut.core.client.render.model.IModelCustom;
-import thut.core.client.render.model.ModelFactory;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import thut.bling.client.BlingRender;
+import thut.bling.network.BagPacket;
 import thut.wearables.EnumWearable;
 import thut.wearables.ThutWearables;
-import thut.wearables.inventory.PlayerWearables;
 
-/*
- * @Mod(modid = Reference.MODID, name = "Thut's Bling", dependencies =
- * "required-after:thut_wearables;required-after:thutcore",
- * version = Reference.VERSION, acceptableRemoteVersions = Reference.MINVERSION,
- * acceptedMinecraftVersions = Reference.MCVERSIONS)
- */
-@Mod(value = Reference.MODID)
+@Mod(value = ThutBling.MODID)
 public class ThutBling
 {
-    @OnlyIn(value = Dist.CLIENT)
+    public static final String      MODID = "thut_bling";
+    public static final CommonProxy PROXY = DistExecutor.runForDist(() -> () -> new ClientProxy(),
+            () -> () -> new CommonProxy());
+
     public static class ClientProxy extends CommonProxy
     {
-        Map<EnumWearable, IModel>             defaultModels   = Maps.newHashMap();
-        Map<EnumWearable, ResourceLocation[]> defaultTextures = Maps.newHashMap();
-
-        Map<String, IModel>             customModels   = Maps.newHashMap();
-        Map<String, ResourceLocation[]> customTextures = Maps.newHashMap();
 
         @Override
-        public Object getClientGuiElement(final int ID, final PlayerEntity player, final World world, final int x,
-                final int y, final int z)
+        public boolean isClientSide()
         {
-            final PlayerWearables cap = ThutWearables.getWearables(player);
-            ItemStack bag = ItemStack.EMPTY;
-            if (bag.isEmpty()) bag = player.getHeldItemMainhand();
-            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
-            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
-            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) return null;
-            return thut.bling.gui.GuiBag.createGui(ContainerBag.makeContainer(bag, player), player);
+            return EffectiveSide.get() == LogicalSide.CLIENT;
         }
 
         @Override
-        public PlayerEntity getClientPlayer()
+        public boolean isServerSide()
         {
-            return Minecraft.getInstance().player;
-        }
-
-        private IModel getModels(final EnumWearable slot, final ItemStack stack)
-        {
-            IModel imodel;
-            if (stack.hasTag() && stack.getTag().contains("model"))
-            {
-                final String model = stack.getTag().getString("model");
-                imodel = this.customModels.get(model);
-                if (imodel == null)
-                {
-                    final ResourceLocation loc = new ResourceLocation(model);
-                    imodel = ModelFactory.create(new ModelHolder(loc, null, null, model));
-                    if (model != null)
-                    {
-                        this.customModels.put(model, imodel);
-                        return imodel;
-                    }
-                }
-                else return imodel;
-            }
-            imodel = this.defaultModels.get(slot);
-            return imodel;
-        }
-
-        private ResourceLocation[] getTextures(final EnumWearable slot, final ItemStack stack)
-        {
-            ResourceLocation[] textures;
-            if (stack.hasTag() && stack.getTag().contains("tex"))
-            {
-                final String tex = stack.getTag().getString("tex");
-                textures = this.customTextures.get(tex);
-                if (textures == null)
-                {
-                    textures = new ResourceLocation[2];
-                    textures[0] = new ResourceLocation(tex);
-                    if (stack.getTag().contains("tex2")) textures[1] = new ResourceLocation(stack.getTag().getString(
-                            "tex2"));
-                    else textures[1] = textures[0];
-                    this.customTextures.put(tex, textures);
-                    return textures;
-                }
-                else return textures;
-            }
-            textures = this.defaultTextures.get(slot);
-            return textures;
-        }
-
-        private void initDefaultModels()
-        {
-            if (!this.defaultModels.isEmpty()) return;
-            for (final EnumWearable slot : EnumWearable.values())
-            {
-                IModel model = this.defaultModels.get(slot);
-                ResourceLocation[] tex = this.defaultTextures.get(slot);
-                if (model == null)
-                {
-                    ModelHolder holder = null;
-                    if (slot == EnumWearable.WAIST || slot == EnumWearable.WRIST || slot == EnumWearable.ANKLE
-                            || slot == EnumWearable.FINGER || slot == EnumWearable.EAR || slot == EnumWearable.NECK)
-                    {
-                        tex = new ResourceLocation[2];
-                        tex[0] = new ResourceLocation("minecraft", "textures/items/diamond.png");
-                        tex[1] = new ResourceLocation(ThutBling.MODID, "textures/worn/belt.png");
-                        holder = new ModelHolder(new ResourceLocation(ThutBling.MODID, "models/worn/belt.x3d"), tex[1],
-                                null, "belt");
-                    }
-                    if (slot == EnumWearable.HAT)
-                    {
-                        tex = new ResourceLocation[2];
-                        tex[0] = new ResourceLocation(ThutBling.MODID, "textures/worn/hat.png");
-                        tex[1] = new ResourceLocation(ThutBling.MODID, "textures/worn/hat2.png");
-                        holder = new ModelHolder(new ResourceLocation(ThutBling.MODID, "models/worn/hat.x3d"), tex[0],
-                                null, "belt");
-                    }
-                    if (slot == EnumWearable.BACK)
-                    {
-                        tex = new ResourceLocation[2];
-                        tex[0] = new ResourceLocation(ThutBling.MODID, "textures/worn/bag1.png");
-                        tex[1] = new ResourceLocation(ThutBling.MODID, "textures/worn/bag2.png");
-                        holder = new ModelHolder(new ResourceLocation(ThutBling.MODID, "models/worn/bag.x3d"), tex[0],
-                                null, "belt");
-                    }
-                    if (holder != null) model = ModelFactory.create(holder);
-                    if (model != null && tex != null)
-                    {
-                        this.defaultModels.put(slot, model);
-                        this.defaultTextures.put(slot, tex);
-                    }
-                }
-            }
+            return EffectiveSide.get() == LogicalSide.SERVER;
         }
 
         @Override
-        public void preInit(final FMLCommonSetupEvent event)
+        public void setup(final FMLCommonSetupEvent event)
         {
-            MinecraftForge.EVENT_BUS.register(this);
-        }
-
-        private void renderAnkle(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            float s, sy, sx, sz, dx, dy, dz;
-            dx = 0.f;
-            dy = .06f;
-            dz = 0.f;
-            s = 0.475f;
-            sx = 1.05f * s / 2;
-            sy = s * 1.8f / 2;
-            sz = s / 2;
-            final Vector3f dr = new Vector3f(dx, dy, dz);
-            final Vector3f ds = new Vector3f(sx, sy, sz);
-            this.renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
-        }
-
-        private void renderBack(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            if (!(model instanceof IModelCustom)) return;
-            final IModelCustom renderable = (IModelCustom) model;
-
-            EnumDyeColor ret;
-            Color colour;
-            int[] col;
-
-            final ResourceLocation[] tex = textures.clone();
-            final Minecraft minecraft = Minecraft.getInstance();
-            float s;
-            GlStateManager.pushMatrix();
-            s = 0.65f;
-            GL11.glScaled(s, -s, -s);
-            minecraft.renderEngine.bindTexture(tex[0]);
-            GlStateManager.rotatef(90, 1, 0, 0);
-            GlStateManager.rotatef(180, 0, 1, 0);
-            GlStateManager.translated(0, -.18, -0.85);
-            col = new int[] { 255, 255, 255, 255, brightness };
-            for (final IExtendedModelPart part1 : model.getParts().values())
-                part1.setRGBAB(col);
-            renderable.renderAll();
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GL11.glScaled(s, -s, -s);
-            minecraft.renderEngine.bindTexture(tex[1]);
-            ret = EnumDyeColor.RED;
-            if (stack.hasTag() && stack.getTag().contains("dyeColour"))
-            {
-                final int damage = stack.getTag().getInt("dyeColour");
-                ret = EnumDyeColor.byDyeDamage(damage);
-            }
-            colour = new Color(ret.getColorValue() + 0xFF000000);
-            col[0] = colour.getRed();
-            col[1] = colour.getGreen();
-            col[2] = colour.getBlue();
-            for (final IExtendedModelPart part1 : model.getParts().values())
-                part1.setRGBAB(col);
-            GlStateManager.rotatef(90, 1, 0, 0);
-            GlStateManager.rotatef(180, 0, 1, 0);
-            GlStateManager.translated(0, -.18, -0.85);
-            renderable.renderAll();
-            GL11.glColor3f(1, 1, 1);
-            GlStateManager.popMatrix();
-        }
-
-        private void renderEar(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            float s, dx, dy, dz;
-            dx = 0.0f;
-            dy = .175f;
-            dz = 0.0f;
-            s = 0.475f / 4f;
-            final Vector3f dr = new Vector3f(dx, dy, dz);
-            final Vector3f ds = new Vector3f(s, s, s);
-            this.renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
-        }
-
-        private void renderEye(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            // TODO eye by model instead of texture.
-            GlStateManager.pushMatrix();
-            Minecraft.getInstance().renderEngine.bindTexture(new ResourceLocation(ThutBling.MODID,
-                    "textures/items/eye.png"));
-            GL11.glTranslated(-0.26, -0.175, -0.251);
-            final Tessellator tessellator = Tessellator.getInstance();
-            final BufferBuilder vertexbuffer = tessellator.getBuffer();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            final double height = 0.5;
-            final double width = 0.5;
-            vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-            vertexbuffer.pos(0.0D, height, 0.0D).tex(0.0D, 1).color(255, 255, 255, 255).endVertex();
-            vertexbuffer.pos(width, height, 0.0D).tex(1, 1).color(255, 255, 255, 255).endVertex();
-            vertexbuffer.pos(width, 0.0D, 0.0D).tex(1, 0).color(255, 255, 255, 255).endVertex();
-            vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0).color(255, 255, 255, 255).endVertex();
-            tessellator.draw();
-            GL11.glPopMatrix();
-        }
-
-        private void renderFinger(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            float s, dx, dy, dz;
-            dx = 0.0f;
-            dy = .175f;
-            dz = 0.0f;
-            s = 0.475f / 4f;
-            final Vector3f dr = new Vector3f(dx, dy, dz);
-            final Vector3f ds = new Vector3f(s, s, s);
-            this.renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
-        }
-
-        private void renderHat(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            if (!(model instanceof IModelCustom)) return;
-            final IModelCustom renderable = (IModelCustom) model;
-
-            EnumDyeColor ret;
-            Color colour;
-            int[] col;
-
-            final ResourceLocation[] tex = textures.clone();
-            final Minecraft minecraft = Minecraft.getInstance();
-            float s;
-            GlStateManager.pushMatrix();
-            s = 0.285f;
-            GL11.glScaled(s, -s, -s);
-            minecraft.renderEngine.bindTexture(tex[0]);
-            col = new int[] { 255, 255, 255, 255, brightness };
-            for (final IExtendedModelPart part1 : model.getParts().values())
-                part1.setRGBAB(col);
-            renderable.renderAll();
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GL11.glScaled(s * 0.995f, -s * 0.995f, -s * 0.995f);
-            minecraft.renderEngine.bindTexture(tex[1]);
-            ret = EnumDyeColor.RED;
-            if (stack.hasTag() && stack.getTag().contains("dyeColour"))
-            {
-                final int damage = stack.getTag().getInt("dyeColour");
-                ret = EnumDyeColor.byDyeDamage(damage);
-            }
-            colour = new Color(ret.getColorValue() + 0xFF000000);
-            col[0] = colour.getRed();
-            col[1] = colour.getGreen();
-            col[2] = colour.getBlue();
-            for (final IExtendedModelPart part1 : model.getParts().values())
-                part1.setRGBAB(col);
-            renderable.renderAll();
-            GL11.glColor3f(1, 1, 1);
-            GlStateManager.popMatrix();
-        }
-
-        private void renderNeck(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            if (!(model instanceof IModelCustom)) return;
-            final ResourceLocation[] tex = textures.clone();
-            final IModelCustom renderable = (IModelCustom) model;
-            EnumDyeColor ret;
-            Color colour;
-            int[] col;
-            float s, dx, dy, dz;
-            dx = 0;
-            dy = -.0f;
-            dz = -0.03f;
-            s = 0.525f;
-            if (wearer.getItemStackFromSlot(EntityEquipmentSlot.LEGS) == null) s = 0.465f;
-            if (stack.hasTag() && stack.getTag().contains("gem")) tex[0] = new ResourceLocation(stack.getTag()
-                    .getString("gem"));
-            else tex[0] = null;
-            GL11.glPushMatrix();
-            GL11.glRotated(90, 1, 0, 0);
-            GL11.glRotated(180, 0, 0, 1);
-            GL11.glTranslatef(dx, dy, dz);
-            GL11.glScalef(s, s, s);
-            final String colorpart = "main";
-            final String itempart = "gem";
-            ret = EnumDyeColor.YELLOW;
-            if (stack.hasTag() && stack.getTag().contains("dyeColour"))
-            {
-                final int damage = stack.getTag().getInt("dyeColour");
-                ret = EnumDyeColor.byDyeDamage(damage);
-            }
-            colour = new Color(ret.getColorValue() + 0xFF000000);
-            col = new int[] { colour.getRed(), colour.getGreen(), colour.getBlue(), 255, brightness };
-            IExtendedModelPart part = model.getParts().get(colorpart);
-            if (part != null)
-            {
-                part.setRGBAB(col);
-                Minecraft.getInstance().renderEngine.bindTexture(tex[1]);
-                GlStateManager.scaled(1, 1, .1);
-                renderable.renderPart(colorpart);
-            }
-            GL11.glColor3f(1, 1, 1);
-            part = model.getParts().get(itempart);
-            if (part != null && tex[0] != null)
-            {
-                Minecraft.getInstance().renderEngine.bindTexture(tex[0]);
-                GlStateManager.scaled(1, 1, 10);
-                GlStateManager.translated(0, 0.01, -0.075);
-                renderable.renderPart(itempart);
-            }
-            GL11.glPopMatrix();
-        }
-
-        private void renderStandardModelWithGem(final ItemStack stack, final String colorpart, final String itempart,
-                final IModel model, ResourceLocation[] tex, final int brightness, final Vector3f dr, final Vector3f ds)
-        {
-            if (!(model instanceof IModelCustom)) return;
-            tex = tex.clone();
-            final IModelCustom renderable = (IModelCustom) model;
-            EnumDyeColor ret = EnumDyeColor.YELLOW;
-            if (stack.hasTag() && stack.getTag().contains("dyeColour"))
-            {
-                final int damage = stack.getTag().getInt("dyeColour");
-                ret = EnumDyeColor.byDyeDamage(damage);
-            }
-            final Color colour = new Color(ret.getColorValue() + 0xFF000000);
-            final int[] col = new int[] { colour.getRed(), colour.getGreen(), colour.getBlue(), 255, brightness };
-            IExtendedModelPart part = model.getParts().get(colorpart);
-
-            if (stack.hasTag() && stack.getTag().contains("gem")) tex[0] = new ResourceLocation(stack.getTag()
-                    .getString("gem"));
-            else tex[0] = null;
-            GL11.glPushMatrix();
-            GL11.glRotated(90, 1, 0, 0);
-            GL11.glRotated(180, 0, 0, 1);
-            GL11.glTranslatef(dr.x, dr.y, dr.z);
-            GL11.glScalef(ds.x, ds.y, ds.z);
-            if (part != null)
-            {
-                part.setRGBAB(col);
-                Minecraft.getInstance().renderEngine.bindTexture(tex[1]);
-                renderable.renderPart(colorpart);
-            }
-            GL11.glColor3f(1, 1, 1);
-            part = model.getParts().get(itempart);
-            if (part != null && tex[0] != null)
-            {
-                Minecraft.getInstance().renderEngine.bindTexture(tex[0]);
-                renderable.renderPart(itempart);
-            }
-            GL11.glPopMatrix();
-        }
-
-        private void renderWaist(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
-        {
-            float s, dx, dy, dz;
-            dx = 0;
-            dy = -.0f;
-            dz = -0.6f;
-            s = 0.525f;
-            if (wearer.getItemStackFromSlot(EntityEquipmentSlot.LEGS) == null) s = 0.465f;
-            final Vector3f dr = new Vector3f(dx, dy, dz);
-            final Vector3f ds = new Vector3f(s, s, s);
-            this.renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
+            super.setup(event);
         }
 
         @Override
-        public void renderWearable(final EnumWearable slot, final LivingEntity wearer, final ItemStack stack,
-                final float partialTicks)
+        public void setupClient(final FMLClientSetupEvent event)
         {
-            this.initDefaultModels();
-            final IModel model = this.getModels(slot, stack);
-            final ResourceLocation[] textures = this.getTextures(slot, stack);
-            if (model == null && slot != EnumWearable.EYE) return;
-            final int brightness = wearer.getBrightnessForRender();
-            switch (slot)
-            {
-            case ANKLE:
-                this.renderAnkle(wearer, stack, model, textures, brightness);
-                break;
-            case BACK:
-                this.renderBack(wearer, stack, model, textures, brightness);
-                break;
-            case EAR:
-                this.renderEar(wearer, stack, model, textures, brightness);
-                break;
-            case EYE:
-                this.renderEye(wearer, stack, model, textures, brightness);
-                break;
-            case FINGER:
-                this.renderFinger(wearer, stack, model, textures, brightness);
-                break;
-            case HAT:
-                this.renderHat(wearer, stack, model, textures, brightness);
-                break;
-            case NECK:
-                this.renderNeck(wearer, stack, model, textures, brightness);
-                break;
-            case WAIST:
-                this.renderWaist(wearer, stack, model, textures, brightness);
-                break;
-            case WRIST:
-                this.renderWrist(wearer, stack, model, textures, brightness);
-                break;
-            default:
-                break;
-            }
         }
 
-        private void renderWrist(final LivingEntity wearer, final ItemStack stack, final IModel model,
-                final ResourceLocation[] textures, final int brightness)
+        @Override
+        @OnlyIn(value = Dist.CLIENT)
+        public void renderWearable(final EnumWearable slot, final int index, final LivingEntity wearer,
+                final ItemStack stack, final float partialTicks)
         {
-            float s, sy, sx, sz, dx, dy, dz;
-            dx = 0.f;
-            dy = .06f;
-            dz = 0.f;
-            s = 0.475f;
-            sx = 1.05f * s / 2;
-            sy = s * 1.8f / 2;
-            sz = s / 2;
-            final Vector3f dr = new Vector3f(dx, dy, dz);
-            final Vector3f ds = new Vector3f(sx, sy, sz);
-            this.renderStandardModelWithGem(stack, "main", "gem", model, textures, brightness, dr, ds);
+            BlingRender.INSTANCE.renderWearable(slot, index, wearer, stack, partialTicks);
         }
     }
 
-    public static class CommonProxy implements IGuiHandler
+    public static class CommonProxy
     {
-        @Override
-        public Object getClientGuiElement(final int ID, final PlayerEntity player, final World world, final int x,
-                final int y, final int z)
-        {
-            return null;
-        }
-
-        public PlayerEntity getClientPlayer()
-        {
-            return null;
-        }
-
-        @Override
-        public Object getServerGuiElement(final int ID, final PlayerEntity player, final World world, final int x,
-                final int y, final int z)
-        {
-            final PlayerWearables cap = ThutWearables.getWearables(player);
-            ItemStack bag = ItemStack.EMPTY;
-            if (bag.isEmpty()) bag = player.getHeldItemMainhand();
-            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = player.getHeldItemOffhand();
-            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) bag = cap.getWearable(EnumWearable.BACK);
-            if (bag.isEmpty() || !(bag.getItem() instanceof ItemBling)) return null;
-            return ContainerBag.makeContainer(bag, player);
-        }
-
-        public void preInit(final FMLCommonSetupEvent event)
+        public void finish(final FMLLoadCompleteEvent event)
         {
         }
 
-        public void renderWearable(final EnumWearable slot, final LivingEntity wearer, final ItemStack stack,
-                final float partialTicks)
+        public boolean isClientSide()
         {
+            return false;
+        }
+
+        public boolean isServerSide()
+        {
+            return true;
+        }
+
+        public void setup(final FMLCommonSetupEvent event)
+        {
+            ThutWearables.packets.registerMessage(BagPacket.class, BagPacket::new);
+        }
+
+        public void setupClient(final FMLClientSetupEvent event)
+        {
+
+        }
+
+        public void renderWearable(final EnumWearable slot, final int index, final LivingEntity wearer,
+                final ItemStack stack, final float partialTicks)
+        {
+            // Nothing in common
         }
     }
 
-    // You can use EventBusSubscriber to automatically subscribe events on the
-    // contained class (this is subscribing to the MOD
-    // Event bus for receiving Registry Events)
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = Reference.MODID)
+    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = ThutBling.MODID)
     public static class RegistryEvents
     {
         @SubscribeEvent
-        public void registerBling(final RegistryEvent.Register<Item> evt)
+        public static void registerItems(final RegistryEvent.Register<Item> event)
         {
-            ItemBling.initDefaults(evt.getRegistry());
+            BlingItem.initDefaults(event.getRegistry());
         }
     }
 
-    public static class ServerProxy extends CommonProxy
-    {
-    }
-
-    public static final String MODID   = Reference.MODID;
-    public static final String VERSION = Reference.VERSION;
-
-    public static SimpleNetworkWrapper packetPipeline = new SimpleNetworkWrapper(ThutBling.MODID);
-
-    @SidedProxy
-    public static CommonProxy proxy;
-
-    @Instance(value = ThutBling.MODID)
-    public static ThutBling instance;
-
     public ThutBling()
     {
-        MinecraftForge.EVENT_BUS.register(this);
+        // TODO Auto-generated constructor stub
     }
 
-    @Method(modid = "thutcore")
-    @EventHandler
-    public void Init(final FMLInitializationEvent e)
-    {
-        ItemBling.initTabs(thut.core.common.ThutCore.tabThut);
-    }
-
-    @EventHandler
-    public void postInit(final FMLPostInitializationEvent e)
-    {
-        RecipeLoader.instance.init();
-    }
-
-    @EventHandler
-    public void preInit(final FMLCommonSetupEvent e)
-    {
-        final Configuration config = new Configuration(e.getSuggestedConfigurationFile());
-        config.load();
-        InventoryLarge.PAGECOUNT = config.getInt("large_ender_pages", Configuration.CATEGORY_GENERAL,
-                InventoryLarge.PAGECOUNT, 1, 99, "Number of pages in the large ender bag");
-        config.save();
-        RecipeLoader.instance = new RecipeLoader(e);
-        ThutBling.proxy.preInit(e);
-        NetworkRegistry.INSTANCE.registerGuiHandler(this, ThutBling.proxy);
-
-        ThutBling.packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 0, Dist.CLIENT);
-        ThutBling.packetPipeline.registerMessage(PacketBag.class, PacketBag.class, 1, Dist.DEDICATED_SERVER);
-
-    }
 }
